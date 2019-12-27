@@ -51,12 +51,22 @@ var Car = function(x, y){
   this.x = x;
   this.y = y;
   
-  // Create DOM element
+  // Create DOM element 
   var newElement = document.createElement("IMG");   
   newElement.src = "https://cl.ly/80cb71d6061a/Car_%20Red.png"; 
   document.body.appendChild(newElement);               
   newElement.classList.add("car");
   this.element = newElement; 
+  
+
+  // Create DOM element (try 2)
+  /*
+  this.element = document.createElement("IMG");   
+  element.src = "https://cl.ly/80cb71d6061a/Car_%20Red.png"; 
+  document.body.appendChild(element);               
+  element.classList.add("car");
+  */
+
 
   // Setup functions
   this.draw = function() {
