@@ -1,0 +1,21 @@
+#baseimage
+    {
+      position: relative;
+      top: 20px;
+      left: 0px;
+    }
+    #car1
+    {
+      position: absolute;
+      top: 200px;
+      left: 450px;
+      /*transform: rotate(90deg);*/
+    } 
+    .rotateUp
+    {   
+      transform: rotate(90deg); 
+    }
+    .car
+    {
+      position: absolute;
+    } 
