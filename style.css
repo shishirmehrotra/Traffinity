@@ -1,13 +1,13 @@
+#container{
+  position:relative;
+  border:1px solid blue;
+}
+
 #baseimage
 {
   position: absolute;
   top: 0px;
   left: 0px;
-}
-
-#container{
-  position:relative;
-  border:1px solid blue;
 }
 
 #pathsCanvas
@@ -34,3 +34,10 @@
   position: absolute;
 } 
 
+#settingsPanel {
+  position: relative;
+  border: 1px solid blue;
+  top: 500px;
+  left:0px;
+  width: 700px;
+}

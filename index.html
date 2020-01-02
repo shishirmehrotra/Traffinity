@@ -15,13 +15,29 @@
   <input id="rotateSlider" type="range" min="-360" max="360"  />
   <button onClick="moveDownPortola()">Move down portola</button>
   <button onClick="togglePaths()">Toggle Paths</button>
-
+  <button onClick="nextStep()">Next Step</button>
   <br> <br>
   <div id="container">
     <img width=1400 height=500 src="https://cl.ly/6c1c44d889d5/Group%205.png" id="baseimage">
     <canvas width=1400 height=500 id="pathsCanvas"></canvas>
   </div>
-
+  <br>
+  <div id="settingsPanel">
+    <h1>Traffic Settings </h1>
+    <h3>Car Setup</h3>
+    <input id="sliderAmountOfCars" type="range" min="0" max="100"> Amount of Cars <br>
+    <input id="sliderEastWest" type="range" min="-100" max="100"> Direction Ratio<br>
+    <input id="sliderAverageSpeed" type="range" min="0" max="100"> Average Speed<br>
+    <h3>Location Preference</h3>
+    <input id="sliderCurbPreferred" type="range" min="0" max="100"> Curb Preferred<br>
+    <input id="sliderParkingSpotPreferred" type="range" min="-0" max="100"> Parking Spot Preferred<br>
+    <input id="sliderStreetPreferred" type="range" min="0" max="100"> Street Preferred<br>
+    <h3>Politeness</h3>
+    <input id="sliderBumperToBumper" type="range" min="0" max="100"> Bumper to Bumper<br>
+    <input id="sliderParkingSpotExit" type="range" min="-0" max="100"> Parking Spot Exit<br>
+    <input id="sliderTaskTime" type="range" min="0" max="100"> Drop off/Pick up Duration<br>
+    <input id="sliderPullForward" type="range" min="0" max="100"> Pull Forward<br>    
+  </div>
   <script src="script.js"></script>
 </body>
 

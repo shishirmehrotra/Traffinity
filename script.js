@@ -10,6 +10,9 @@
 // CAR
 
 var Car = function (x, y) {
+
+
+
 // Set initial position
   this.x = x;
   this.y = y;
@@ -21,27 +24,46 @@ var Car = function (x, y) {
   this.element.id = 'car1';
   mapContainer.appendChild(this.element);
 
-// Set functions: draw, rotate
+ // Set functions: draw, rotate
   this.draw = function () {
-    this.element.style.left = x + "px";
-    this.element.style.top = y + "px";
+    //this.element.style.left = x + "px";
+    //this.element.style.top = y + "px";
+
+    this.element.style.left = this.currentPath.x2 + "px";
+    this.element.style.top = this.currentPath.y2 + "px";
+
   };
 
   this.rotate = function (value) { this.element.style.transform = "rotate(" + value + "deg)"; }
+  
+  this.setPath = function(path) {
+    this.currentPath = path;
+    path.currentCar = this;
+  }
+  
+  this.nextStep = function() {
+    if(this.currentPath != null) {
+      if(this.currentPath.nextPathOptions.length > 0) {
+        this.setPath(this.currentPath.nextPathOptions[0]);
+        this.draw();
+      }
+    }
+  }
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 // PATH
 
-var Path = function (x1, y1, x2, y2, types) {
+var Path = function (x1, y1, x2, y2, types, nextPathOptions) {
 // Set initial values
   this.x1 = x1;
   this.y1 = y1;
   this.x2 = x2;
   this.y2 = y2;
   this.types = types;
-
+  this.nextPathOptions = nextPathOptions;
+  this.currentCar = null;
 
 
 // Types: Dropoff, Parking spot, Start, End, RightTurn, LeftTurn, ...
@@ -58,7 +80,7 @@ var Path = function (x1, y1, x2, y2, types) {
     ctx.arc(x1, y1, 1, 0, 2 * Math.PI, false);
     ctx.fillStyle = 'black';
     ctx.fill();
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.strokeStyle = '#003300';
     ctx.stroke();
 
@@ -66,7 +88,7 @@ var Path = function (x1, y1, x2, y2, types) {
     ctx.arc(x2, y2, 1, 0, 2 * Math.PI, false);
     ctx.fillStyle = 'black';
     ctx.fill();
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.strokeStyle = '#003300';
     ctx.stroke();
   }
@@ -85,9 +107,11 @@ var mapContainer = document.getElementById("container");
 var pathsCanvas = document.getElementById("pathsCanvas");
 
 var paths = [];
+var previousPath;
 for (var i = 0; i<20; i++){
-  paths.push(new Path(i*50,50, (i+1)*50, 50));
+  paths.push(new Path(i*50,70, (i+1)*50, 70, new Array(), new Array()));
   paths[i].draw();
+  if(i>0) {  paths[i-1].nextPathOptions.push(paths[i]);}
 }
 
 //var path = new Path(10, 10, 100, 100);
@@ -96,13 +120,20 @@ for (var i = 0; i<20; i++){
 
 var carFleet = [];
 for (var i = 0; i<20; i++){
-  carFleet.push(new Car(i*50,50));
+  carFleet.push(new Car(i*50, 70));
+  carFleet[i].setPath(paths[i]);
   carFleet[i].draw();
 }
 
 
 function togglePaths() {
     pathsCanvas.hidden = !pathsCanvas.hidden;
+}
+
+function nextStep() {
+  for (var i = 0; i<carFleet.length; i++) {
+    carFleet[i].nextStep();
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
