@@ -15,7 +15,6 @@
   <input id="rotateSlider" type="range" min="-360" max="360"  />
   <button onClick="moveDownPortola()">Move down portola</button>-->
   <button onClick="togglePaths()">Toggle Paths</button>
-  <button onClick="nextStep()">Next Step</button>
   <br> <br>
   <div id="container">
     <img width=1400 height=500 src="https://cl.ly/6c1c44d889d5/Group%205.png" id="baseimage">
@@ -75,7 +74,7 @@
       <button id="buttonPause" name="runSymptomsPlayPause" value="Pause" >
       <img src="Buttons/Pause.png"/>
             </button>
-      <button id="buttonForward" name="runSymptoms" value="Forward" >
+      <button id="buttonForward" name="runSymptoms" value="Forward" onClick="nextStep()" >
       <img src= "Buttons/AdvanceOne.png">
       </button>
     </div>  

@@ -94,10 +94,15 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
     ctx.strokeStyle = '#003300';
     ctx.stroke();
 
-    ctx.fillText(name + "-> 9 + 7"  , x1, y1-10);
-    ctx.fillText("11|3.6|2.4",x1, y1+20)
-    //ctx.fillText("");
+    ctx.font = "10px Arial";
+    var string = "";
+    string += name;
+    nextPathOptions.forEach(function(elem) {
+      string += "|" + elem.name;
+    });
 
+    ctx.fillText(string, x1, y1-10);
+  
   }
   this.clearCurrentCar = function() {
     this.currentCar = null;
@@ -119,9 +124,11 @@ var paths = [];
 var previousPath;
 for (var i = 0; i<20; i++){
   paths.push(new Path(i, i*50,70, (i+1)*50, 70, new Array(), new Array()));
-  paths[i].draw();
   if(i>0) {  paths[i-1].nextPathOptions.push(paths[i]);}
+
 }
+
+paths.forEach(function(elem){elem.draw();});
 //var path = new Path(10, 10, 100, 100);
 //path.draw();
 
