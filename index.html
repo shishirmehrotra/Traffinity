@@ -23,20 +23,22 @@
   </div>
   <br>
   <div id="settingsPanel">
-    <h1>Traffic Settings </h1>
-    <h3>Car Setup</h3>
-    <input id="sliderAmountOfCars" type="range" min="0" max="100"> Amount of Cars <br>
-    <input id="sliderEastWest" type="range" min="-100" max="100"> Direction Ratio<br>
-    <input id="sliderAverageSpeed" type="range" min="0" max="100"> Average Speed<br>
-    <h3>Location Preference</h3>
-    <input id="sliderCurbPreferred" type="range" min="0" max="100"> Curb Preferred<br>
-    <input id="sliderParkingSpotPreferred" type="range" min="-0" max="100"> Parking Spot Preferred<br>
-    <input id="sliderStreetPreferred" type="range" min="0" max="100"> Street Preferred<br>
-    <h3>Politeness</h3>
-    <input id="sliderBumperToBumper" type="range" min="0" max="100"> Bumper to Bumper<br>
-    <input id="sliderParkingSpotExit" type="range" min="-0" max="100"> Parking Spot Exit<br>
-    <input id="sliderTaskTime" type="range" min="0" max="100"> Drop off/Pick up Duration<br>
-    <input id="sliderPullForward" type="range" min="0" max="100"> Pull Forward<br>    
+    <h2>Traffic Settings </h2>
+    <div id="slidersCarSetup">
+      <h3>Car Setup</h3> <p>
+      <input class="slider" id="sliderAmountOfCars" type="range" min="0" max="100"> Amount of Cars <br>
+      <input class="slider" id="sliderEastWest" type="range" min="-100" max="100"> Direction Ratio<br>
+      <input class="slider" id="sliderAverageSpeed" type="range" min="0" max="100"> Average Speed<br>
+      <h3>Location Preference</h3><p>
+      <input class="slider" id="sliderCurbPreferred" type="range" min="0" max="100"> Curb Preferred<br>
+      <input class="slider" id="sliderParkingSpotPreferred" type="range" min="-0" max="100"> Parking Spot Preferred<br>
+      <input class="slider" id="sliderStreetPreferred" type="range" min="0" max="100"> Street Preferred<br>
+      <h3>Politeness</h3><p>
+      <input class="slider" id="sliderBumperToBumper" type="range" min="0" max="100"> Bumper to Bumper<br>
+      <input class="slider" id="sliderParkingSpotExit" type="range" min="-0" max="100"> Parking Spot Exit<br>
+      <input class="slider" id="sliderTaskTime" type="range" min="0" max="100"> Drop off/Pick up Duration<br>
+      <input class="slider" id="sliderPullForward" type="range" min="0" max="100"> Pull Forward<br>    
+    </div>
   </div>
   <script src="script.js"></script>
 </body>
