@@ -9,13 +9,9 @@
 //
 // CAR
 
-var Car = function (x, y) {
+var Car = function () {
 
-
-
-// Set initial position
-  this.x = x;
-  this.y = y;
+  this.currentPath = null;
 
 // Create DOM element 
   this.element = document.createElement("IMG");
@@ -36,16 +32,21 @@ var Car = function (x, y) {
 
   this.rotate = function (value) { this.element.style.transform = "rotate(" + value + "deg)"; }
   
-  this.setPath = function(path) {
-    this.currentPath = path;
-    path.currentCar = this;
-  }
+
   
+  this.setPath = function(path) {
+      if (this.currentPath != null) { this.currentPath.clearCurrentCar();}
+      this.currentPath = path;
+      path.currentCar = this;
+  }
+
   this.nextStep = function() {
     if(this.currentPath != null) {
       if(this.currentPath.nextPathOptions.length > 0) {
-        this.setPath(this.currentPath.nextPathOptions[0]);
-        this.draw();
+        if(this.currentPath.nextPathOptions[0].currentCar === null) {
+          this.setPath(this.currentPath.nextPathOptions[0]);
+          this.draw();
+        }
       }
     }
   }
@@ -55,7 +56,7 @@ var Car = function (x, y) {
 //
 // PATH
 
-var Path = function (x1, y1, x2, y2, types, nextPathOptions) {
+var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
 // Set initial values
   this.x1 = x1;
   this.y1 = y1;
@@ -64,6 +65,7 @@ var Path = function (x1, y1, x2, y2, types, nextPathOptions) {
   this.types = types;
   this.nextPathOptions = nextPathOptions;
   this.currentCar = null;
+  this.name = name;
 
 
 // Types: Dropoff, Parking spot, Start, End, RightTurn, LeftTurn, ...
@@ -91,16 +93,23 @@ var Path = function (x1, y1, x2, y2, types, nextPathOptions) {
     ctx.lineWidth = 3;
     ctx.strokeStyle = '#003300';
     ctx.stroke();
+
+    ctx.fillText(name + "-> 9 + 7"  , x1, y1-10);
+    ctx.fillText("11|3.6|2.4",x1, y1+20)
+    //ctx.fillText("");
+
   }
-
-};
-
+  this.clearCurrentCar = function() {
+    this.currentCar = null;
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // 
 // SET UP ACTUAL INSTANCES
 //
 //////////////////////////////////////////////////////////////////////////////////////////
+
 
 //var map = new Map();
 var mapContainer = document.getElementById("container");
@@ -109,19 +118,20 @@ var pathsCanvas = document.getElementById("pathsCanvas");
 var paths = [];
 var previousPath;
 for (var i = 0; i<20; i++){
-  paths.push(new Path(i*50,70, (i+1)*50, 70, new Array(), new Array()));
+  paths.push(new Path(i, i*50,70, (i+1)*50, 70, new Array(), new Array()));
   paths[i].draw();
   if(i>0) {  paths[i-1].nextPathOptions.push(paths[i]);}
 }
-
 //var path = new Path(10, 10, 100, 100);
 //path.draw();
 
 
 var carFleet = [];
-for (var i = 0; i<20; i++){
-  carFleet.push(new Car(i*50, 70));
-  carFleet[i].setPath(paths[i]);
+var numberOfCars = document.getElementById("sliderAmountOfCars").value;
+for (var i = 0; i<numberOfCars; i++){
+  carFleet.push(new Car());
+  if(i < paths.length-1) {carFleet[i].setPath(paths[i]);}
+  else {carFleet[i].setPath(paths[0]);}
   carFleet[i].draw();
 }
 
@@ -131,10 +141,18 @@ function togglePaths() {
 }
 
 function nextStep() {
-  for (var i = 0; i<carFleet.length; i++) {
-    carFleet[i].nextStep();
-  }
+  carFleet.forEach(function(elem){
+    elem.nextStep()
+    })
 }
+
+let elementsArray = document.querySelectorAll(".slider");
+
+elementsArray.forEach(function(elem) {
+    elem.addEventListener("input", function() {
+        this.style.background = 'linear-gradient(to right, #82CFD0 0%, #82CFD0 ' + this.value + '%, #C6C6C6 ' + this.value + '%, #C6C6C6 100%)'
+    });
+});
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // 
@@ -142,7 +160,7 @@ function nextStep() {
 //
 //////////////////////////////////////////////////////////////////////////////////////////
 
-
+/*
 function moveDown(amount) {
   var car = document.getElementById("car1");
   car.style.top = parseFloat(getComputedStyle(car).top) + amount + "px";
@@ -189,3 +207,16 @@ function moveDownPortola() {
   }
 
 }
+*/
+/*
+let sliderArray = document.getElementByClass("slider");
+
+sliderArray.forEach(function(elem) {
+    elem.oninput = function() {
+        this.style.background = 'linear-gradient(to right, #82CFD0 0%, #82CFD0 ' + this.value + '%, #fff ' + this.value + '%, white 100%)'
+    };
+)}
+*/
+
+ 
+  
