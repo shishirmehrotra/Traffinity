@@ -22,12 +22,8 @@ var Car = function () {
 
  // Set functions: draw, rotate
   this.draw = function () {
-    //this.element.style.left = x + "px";
-    //this.element.style.top = y + "px";
-
     this.element.style.left = this.currentPath.x2 + "px";
     this.element.style.top = this.currentPath.y2 + "px";
-
   };
 
   this.rotate = function (value) { this.element.style.transform = "rotate(" + value + "deg)"; }
