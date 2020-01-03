@@ -62,11 +62,27 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
   this.nextPathOptions = nextPathOptions;
   this.currentCar = null;
   this.name = name;
+  this.displayString = "";
+  this.displayStringLong = "";
+
 
 
 // Types: Dropoff, Parking spot, Start, End, RightTurn, LeftTurn, ...
   
 // Draw function
+
+  this.setDisplayStrings = function() {
+    this.displayString = "";
+
+    var newString = "";
+    newString += this.name;
+    newString += ": ";
+    nextPathOptions.forEach(function(elem) {newString += elem.name + "|";});
+    this.displayString = newString;
+
+    // To Do: Add displayStringLong when we have dependent paths
+  }
+
   this.draw = function() {
     var ctx = pathsCanvas.getContext("2d");
     ctx.beginPath();
@@ -90,14 +106,11 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
     ctx.strokeStyle = '#003300';
     ctx.stroke();
 
-    ctx.font = "10px Arial";
-    var string = "";
-    string += name;
-    nextPathOptions.forEach(function(elem) {
-      string += "|" + elem.name;
-    });
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "white";
 
-    ctx.fillText(string, x1, y1-10);
+    this.setDisplayStrings();
+    ctx.fillText(this.displayString, x1, y1-10);
   
   }
   this.clearCurrentCar = function() {
@@ -105,43 +118,128 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
   }
 }
 
+
+
 //////////////////////////////////////////////////////////////////////////////////////////
 // 
-// SET UP ACTUAL INSTANCES
+// EXECUTION
 //
 //////////////////////////////////////////////////////////////////////////////////////////
 
 
-//var map = new Map();
+// Setup Global Variables
 var mapContainer = document.getElementById("container");
 var pathsCanvas = document.getElementById("pathsCanvas");
-
-var paths = [];
-var previousPath;
-for (var i = 0; i<20; i++){
-  paths.push(new Path(i, i*50,70, (i+1)*50, 70, new Array(), new Array()));
-  if(i>0) {  paths[i-1].nextPathOptions.push(paths[i]);}
-
-}
-
-paths.forEach(function(elem){elem.draw();});
-//var path = new Path(10, 10, 100, 100);
-//path.draw();
-
-
 var carFleet = [];
-var numberOfCars = document.getElementById("sliderAmountOfCars").value;
-for (var i = 0; i<numberOfCars; i++){
-  carFleet.push(new Car());
-  if(i < paths.length-1) {carFleet[i].setPath(paths[i]);}
-  else {carFleet[i].setPath(paths[0]);}
-  carFleet[i].draw();
+var paths = [];
+
+setupSliders();
+createPaths();
+createCarFleet();
+runSimulation();
+//createCarFleetFillAllPaths();
+//createCarFleetRandom();
+
+// Call Debug functions
+consoleLogAllPaths();
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// 
+// SETUP FUNCTIONS
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+
+function setupSliders() {
+  let elementsArray = document.querySelectorAll(".slider");
+
+  elementsArray.forEach(function(elem) {
+      elem.addEventListener("input", function() {
+          this.style.background = 'linear-gradient(to right, #82CFD0 0%, #82CFD0 ' + this.value + '%, #C6C6C6 ' + this.value + '%, #C6C6C6 100%)'
+      });
+
+      elem.dispatchEvent(new Event('input'));
+  });
+
+
 }
+
+function createPaths() {
+  var previousPath;
+
+  // Across Portola
+  for (var i = 0; i<20; i++){
+    paths.push(new Path(i, i*50, 70, (i+1)*50, 70, new Array(), new Array()));
+    if(i>0) {  paths[i-1].nextPathOptions.push(paths[i]);}
+
+  }
+
+  // Into parking lot
+  for (var i = 20; i<30; i++){
+    paths.push(new Path(i, 450, 20+(i-20)*50, 450, 20+(i-19)*50, new Array(), new Array()));
+    if(i>0) {  paths[i-1].nextPathOptions.push(paths[i]);}
+
+  }
+
+  // random angled line
+  for (var i = 30; i<40; i++){
+    paths.push(new Path(i, 450+(i-30)*50, 20+(i-30)*50, 450+(i-29)*50, 20+(i-29)*50, new Array(), new Array()));
+    if(i>0) {  paths[i-1].nextPathOptions.push(paths[i]);}
+
+  }
+
+  paths.forEach(function(elem){elem.draw();});
+}
+
+function createCarFleet() {
+  var numberOfCars = document.getElementById("sliderAmountOfCars").value;
+  for (var i = 0; i < numberOfCars; i++){
+    carFleet.push(new Car());
+  }
+}
+/*
+function createCarFleetFillAllPaths() {
+  var numberOfCars = document.getElementById("sliderAmountOfCars").value;
+  for (var i = 0; i<numberOfCars; i++){
+    carFleet.push(new Car());
+    if(i < paths.length-1) {carFleet[i].setPath(paths[i]);}
+    else {carFleet[i].setPath(paths[0]);}
+    carFleet[i].draw();
+  }
+}
+*/
+
+function carFleetAssignRandomPaths() {
+  carFleet.forEach(function(e) {
+    var random = getRandomInt(paths.length);
+    e.setPath(paths[random]);
+    e.draw();
+  });
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// 
+// RUN FUNCTIONS
+//
+//////////////////////////////////////////////////////////////////////////////////////////
 
 
 function togglePaths() {
     pathsCanvas.hidden = !pathsCanvas.hidden;
 }
+
+function runSimulation() {
+  carFleetAssignRandomPaths();
+
+  var timeScale = 50000;
+
+  for (var i = 0; i < 1000; i++) {
+    window.setTimeout(nextStep, timeScale / 60 * i, 20);
+  }
+}
+
 
 function nextStep() {
   carFleet.forEach(function(elem){
@@ -149,13 +247,29 @@ function nextStep() {
     })
 }
 
-let elementsArray = document.querySelectorAll(".slider");
+//////////////////////////////////////////////////////////////////////////////////////////
+// 
+// HELPER FUNCTIONS
+//
+//////////////////////////////////////////////////////////////////////////////////////////
 
-elementsArray.forEach(function(elem) {
-    elem.addEventListener("input", function() {
-        this.style.background = 'linear-gradient(to right, #82CFD0 0%, #82CFD0 ' + this.value + '%, #C6C6C6 ' + this.value + '%, #C6C6C6 100%)'
-    });
-});
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// 
+// DEBUG FUNCTIONS
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+
+function consoleLogAllPaths() {
+  console.log("paths.displayString");
+  paths.forEach(function(e) {console.log(e.displayString);});
+}
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // 

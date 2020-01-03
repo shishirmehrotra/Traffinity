@@ -25,7 +25,7 @@
     <h2>Traffic Settings </h2>
     <div id="slidersCarSetup">
       <h3>Car Setup</h3> <p>
-      <input class="slider" id="sliderAmountOfCars" type="range" min="0" max="100"> Amount of Cars <br>
+      <input class="slider" id="sliderAmountOfCars" type="range" min="0" max="100" value="10"> Amount of Cars <br>
       <input class="slider" id="sliderEastWest" type="range" min="0" max="100"> Direction Ratio<br>
       <input class="slider" id="sliderAverageSpeed" type="range" min="0" max="100"> Average Speed<br>
       <h3>Location Preference</h3><p>
@@ -67,7 +67,7 @@
         <img src="Buttons/GoBackOne.png"/>
       </button>
 
-      <button id="buttonPlay" name="runSymptomsPlayPause"  >
+      <button id="buttonPlay" name="runSymptomsPlayPause" onClick="runSimulation()" >
         <img src="Buttons/Play.png"/>
       </button>
 
