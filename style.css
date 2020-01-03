@@ -1,261 +1,79 @@
-* {
-  font-family: sans-serif;
-}
+/**************************************************************************
+  TEXT FORMATTING
+***************************************************************************/
+*  {font-family: Roboto; font-style: normal; letter-spacing: 0.15px;}
+p  {font-size: 14px; font-weight: 500; color: #444444; line-height: 30px;}
+h2 {font-size: 16px; font-weight: 500; color: #000000; text-align: center;}
+h3 {font-size: 16px; font-weight: 500; color: #000000;}
 
-#container{
-  position:relative;
-}
+/**************************************************************************
+  MAP SETUP
+***************************************************************************/
+#container   {position: relative; }
+#baseimage   {position: absolute; top: 0px; left: 0px;}
+#pathsCanvas {position: absolute;}
 
-#baseimage
-{
-  position: absolute;
-  top: 0px;
-  left: 0px;
-}
+/**************************************************************************
+  PANEL LAYOUT
+***************************************************************************/
+.panel {background: #FFFFFF;  border: 1px solid #E5E5E5; 
+        box-sizing: border-box; border-radius: 4px;}
+#trafficSettingsPanel {position: relative; top: 500px; left:   0px; width: 700px;}
+#solutionPanel        {position: relative; top:  28px; left: 705px; width: 700px;}
+#simulationPanel      {position: relative; top:  35px; left: 705px; width: 700px;}
 
-#pathsCanvas
-{
-  position:absolute;
-}
+#slidersCarSetup {margin: auto; width: 85%;}
+#parkingLotSetup {margin: auto; width: 85%;}
 
-#car2
-{
-  position: absolute;
-  top: 200px;
-  left: 450px;
-  /*transform: rotate(90deg);*/
-} 
-
-.rotateUp
-{   
-  transform: rotate(90deg); 
-}
-
-.car
-{
-  position: absolute;
-} 
-
-#settingsPanel {
-  position: relative;
-  top: 500px;
-  left:0px;
-  width: 700px;
-
-  background: #FFFFFF;
-  border: 1px solid #E5E5E5;
-  box-sizing: border-box;
-  border-radius: 4px;
-}
-
-#solutionPanel{
-  position: relative;
-  top: 30px;
-  left: 710px;
-  width: 700px;
-  background: #FFFFFF;
-  border: 1px solid #E5E5E5;
-  box-sizing: border-box;
-  border-radius: 4px;
-}
-
-#simulationPanel{
-  position: relative;
-  top: 40px;
-  left: 710px;
-  width: 700px;
-  background: #FFFFFF;
-  border: 1px solid #E5E5E5;
-  box-sizing: border-box;
-  border-radius: 4px;
-}
-
-
-
-#slidersCarSetup {
-  margin: auto;
-  width: 85%;
-  //padding: 10px;
-
-}
-
-#parkingLotSetup {
-  margin: auto;
-  width: 85%;
-  //padding: 10px;
-
-}
+/**************************************************************************
+  PANEL: TRAFFIC SETTINGS
+***************************************************************************/
 
 .slider {
-  -webkit-appearance: none;
-  width: 60%;
-  height: 5px;
-  border-radius: 5px;  
+  width: 60%; height: 5px; border-radius: 5px; outline: none; opacity: 0.7; margin: 10px;
   background: linear-gradient(to right, #6EC8DB 0%, #6EC8DB 50%, #C6C6C6 50%,#C6C6C6 100%);
-  outline: none;
-  opacity: 0.7;
-  -webkit-transition: .2s;
-  transition: opacity .2s;
-  margin: 10px;
-  //border: 1px solid#6EC8DB;
-  //border: 2px solid #C6C6C6;
-  transition: background 450ms ease-in;
-}
-
-.slider::-webkit-slider-thumb {
+  transition: opacity .2s background 450ms ease-in;
   -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%; 
-  background: #FFFFFF;
-  border: 3px solid #6EC8DB;
-  box-sizing: border-box; 
-  cursor: pointer;
-  
+  -webkit-transition: .2s;
 }
-
+.slider::-webkit-slider-thumb {
+  width: 20px; height: 20px; border-radius: 50%; 
+  box-sizing: border-box; border: 3px solid #6EC8DB;
+  background: #FFFFFF; cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+}
 .slider::-moz-range-thumb {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
+  width: 25px; height: 25px; border-radius: 50%; cursor: pointer;
   background: #4CAF50;
-  cursor: pointer;
 }
+.slider:hover {  opacity: 1; /* Fully shown on mouse-over */}
 
-/* Mouse-over effects */
-.slider:hover {
-  opacity: 1; /* Fully shown on mouse-over */
-}
-
-p {
-  font-size: 15px;
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 30px;
-  /* identical to box height, or 214% */
-
-  //display: flex;
-  //align-items: center;
-  letter-spacing: 0.15px;
-
-  color: #444444;
-}
-
-
-.radio-toolbar {
-  margin: 10px;
-}
-
-.radio-toolbar input[type="radio"] {
-  opacity: 0;
-  position: fixed;
-  width: 0;
-}
-
-.radio-toolbar label {
-    display: inline-block;
-    padding: 10px 20px;
-    background: #E3F2FD;
-
-    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
-    border-radius: 4px;
-
-    font-family: Roboto;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 16px;
-    text-align: center;
-    letter-spacing: 1.25px;
-    text-transform: uppercase;
-    color: #2196F3;
-}
-
-.radio-toolbar label:hover {
-  background-color: hsl(199, 100%, 80%);
-}
-
-.radio-toolbar input[type="radio"]:focus + label {
-    //border: 2px dashed #444;
-}
-
-.radio-toolbar input[type="radio"]:checked + label {
-    //background-color:  hsl(199, 100%, 80%);
-    //border-color: hsl(200, 100%, 80%);
-
-    background: #2196F3;
-/* 1 dp */
-
-    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
-    border-radius: 4px;
-
-    font-family: Roboto;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 16px;
-    /* identical to box height, or 114% */
-
-    text-align: center;
-    letter-spacing: 1.25px;
-    text-transform: uppercase;
-
-    /* White / High Emphasis */
-
-    color: #FFFFFF;
-}
-
-
-h2 {
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 16px;
-  //line-height: 30px;
-  /* or 187% */
-
-  text-align: center;
-  letter-spacing: 0.15px;
-
-  color: #000000;
-}
-
-h3 {
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 16px;
-  //line-height: 30px;
-  /* or 187% */
-
-  letter-spacing: 0.15px;
-
-  color: #000000;
-}
-
-button {
-  padding: 0;
-  border: none;
-  background: none;
-}
-
-#simulationSetup{
-  width: 100%;
-  height: 100px;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/**************************************************************************
+  PANEL: PARKING LOT SETUP
+***************************************************************************/
 
 .radio-toolbar{
-  width: 100%;
-  height: 50px;
-  border: none;
-  display:flex;
+  margin: 10px; width: 100%; height: 50px; border: none; 
+  display:flex; align-items: center; justify-content: center;
+}
+.radio-toolbar input[type="radio"] {opacity: 0; position: fixed; width: 0;}
+.radio-toolbar label {
+    display: inline-block; padding: 10px 20px; background: #E3F2FD; border-radius: 4px;
+    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
+    font-family: Roboto; font-style: normal; font-weight: 500; font-size: 14px;
+    line-height: 16px;   text-align: center; letter-spacing: 1.25px;
+    color: #2196F3;    text-transform: uppercase;
+}
+.radio-toolbar label:hover {background-color: hsl(199, 100%, 80%);}
+.radio-toolbar input[type="radio"]:checked + label {background: #2196F3; color: #FFFFFF;}
+/*.radio-toolbar input[type="radio"]:focus + label { border: 2px dashed #444;} */
+
+/**************************************************************************
+  PANEL: RUN SIMULATION
+***************************************************************************/
+#simulationPanel button {padding: 0; border: none; background: none;}
+#simulationSetup { 
+  width: 100%; height: 100px; border: none; display: flex;
   align-items: center;
   justify-content: center;
 }
