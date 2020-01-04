@@ -24,6 +24,7 @@ var Car = function () {
   this.draw = function () {
     this.element.style.left = this.currentPath.x2 + "px";
     this.element.style.top = this.currentPath.y2 + "px";
+    this.element.style.transform = "rotate(" + this.currentPath.rotation + "deg)";
   };
 
   this.rotate = function (value) { this.element.style.transform = "rotate(" + value + "deg)"; }
@@ -64,6 +65,7 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
   this.name = name;
   this.displayString = "";
   this.displayStringLong = "";
+  this.rotation = Math.atan((y2-y1)/(x2-x1))*180/Math.PI;
 
 
 
@@ -78,6 +80,7 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
     newString += this.name;
     newString += ": ";
     nextPathOptions.forEach(function(elem) {newString += elem.name + "|";});
+    //newString += " " + this.rotation;
     this.displayString = newString;
 
     // To Do: Add displayStringLong when we have dependent paths

@@ -22,9 +22,12 @@ h3 {font-size: 16px; font-weight: 500; color: #000000;}
 #trafficSettingsPanel {position: relative; top: 500px; left:   0px; width: 700px;}
 #solutionPanel        {position: relative; top:  28px; left: 705px; width: 700px;}
 #simulationPanel      {position: relative; top:  35px; left: 705px; width: 700px;}
+#resultsPanel         {position: relative; top:  42px; left: 705px; width: 700px;}
 
 #slidersCarSetup {margin: auto; width: 85%;}
 #parkingLotSetup {margin: auto; width: 85%;}
+#simulationSetup {margin: auto; width: 85%;}
+#resultsSetup     {margin: auto; width: 85%;}
 
 /**************************************************************************
   PANEL: TRAFFIC SETTINGS
@@ -78,4 +81,15 @@ h3 {font-size: 16px; font-weight: 500; color: #000000;}
   width: 100%; height: 100px; border: none; display: flex;
   align-items: center;
   justify-content: center;
+}
+/**************************************************************************
+  PANEL: Results
+***************************************************************************/
+#resultsSetup    {font-size: 12px; text-align: left; font-family: Roboto;font-style: normal; font-weight: normal; line-height: 30px; }
+#resultsSetup th {color: #77767E;border-bottom: 2px solid #ddd}
+#resultsSetup tr {color: #232326;font-weight: bold;}
+#resultsSetup .subtext {color: #8F8F8F; font-size:10px;}
+
+#resultsSetup td {
+  border-bottom: 1px solid #ddd;
 }
