@@ -1,4 +1,15 @@
 //////////////////////////////////////////////////////////////////////////////////////////
+// To Do
+// - Get rid of NextPathOptions
+// - Model the rest of path Transitions
+// - Run simulation - how cars are created, next frame, time warp
+//
+// Later
+// - Edit and store paths directly -- need to pick storage model (e.g. https://repl.it/site/blog/firebase)
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
 // 
 // SET UP CLASSES: Car, Path, Fleet
 //
@@ -36,19 +47,29 @@ var Car = function (id) {
     if (this.currentPath != null) { this.currentPath.clearCurrentCar(); }
     this.currentPath = path;
     path.currentCar = this;
-  this.currentPath.arrow.stroke('white');
+  //this.currentPath.arrow.stroke('white');
   pathsLayer.draw();
   }
 
   this.nextStep = function () {
     // TODO select from openTransitions
     if (this.currentPath != null) {
+      var validPathTransitions = pathTransitions.filter(e => e.fromPath === this.currentPath && e.isAvailable());
+      if(validPathTransitions.length > 0) {
+          var random = getRandomInt(validPathTransitions.length);
+
+          this.setPath(validPathTransitions[random].toPath); this.draw();
+      }
+      
+
+      /*
       if (this.currentPath.nextPathOptions.length > 0) {
         if (this.currentPath.nextPathOptions[0].currentCar === null) {
           this.setPath(this.currentPath.nextPathOptions[0]);
           this.draw();
         }
       }
+      */
     }
   }
 };
@@ -62,6 +83,7 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
   
 
   // Set initial values
+    this.name = name;
     this.x1 = x1;
     this.y1 = y1;
     this.x2 = x2;
@@ -69,7 +91,6 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
     this.types = types;
     this.nextPathOptions = nextPathOptions;
     this.currentCar = null;
-    this.name = name;
     this.displayString = "";
     this.displayStringLong = "";
     this.rotation = Math.atan((y2 - y1) / (x2 - x1)) * 180 / Math.PI;
@@ -167,6 +188,16 @@ var PathTransition = function(fromPath, toPath, dependentPaths) {
     return available;
 
   }
+
+  this.consoleLog = function () {
+    var string = "From: " + this.fromPath.name + " To: " + this.toPath.name + " [";
+    this.dependentPaths.forEach(function(e)
+      { 
+        string += e["path"].name + e["priority"];
+        });
+    string += "]";
+    console.log(string);
+  }
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -207,6 +238,7 @@ pathsStage.add(pathsLayer);
 
 setupSliders();
 createPaths();
+
 createPathTransitions();
 createCarFleet();
 runSimulation();
@@ -214,7 +246,10 @@ runSimulation();
 //createCarFleetRandom();
 
 // Call Debug functions
+
 consoleLogAllPaths();
+consoleLogAllPathTransitions();
+
 
 
 
@@ -245,6 +280,7 @@ function createPaths() {
   for (var i = 0; i < 9; i++) {
     paths.push(new Path(i, i * 50, 70, (i + 1) * 50, 70, new Array(), new Array()));
     if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
+    if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
 
   }
 
@@ -252,40 +288,52 @@ function createPaths() {
   for (var i = 9; i < 13; i++) {
     paths.push(new Path(i, 450, 20 + (i - 8) * 50, 450, 20 + (i - 7) * 50, new Array(), new Array()));
     if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
-
+    if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
   }
 
   // random angled line
   for (var i = 13; i < 16; i++) {
     paths.push(new Path(i, 450 + (i -13) * 50, 270 + (i - 13) * 50, 450 + (i - 12) * 50, 270 + (i - 12) * 50, new Array(), new Array()));
     if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
-
+    if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
   }
 
    for (var i = 16; i < 21; i++) {
     paths.push(new Path(i, 600+50*(i-16), 420, 600+50*(i-15), 420, new Array(), new Array()));
     if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
-
+    if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
   }
 
   // Into parking lot
   for (var i = 21; i < 29; i++) {
     paths.push(new Path(i, 850+(i-21)*5, 420 - (i - 21) * 50, 850+(i-20)*5, 420 - (i - 20) * 50, new Array(), new Array()));
     if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
-
+    if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
   }
 
   for (var i = 29; i < 47; i++) {
     paths.push(new Path(i, 890-(i-29) * 50, 20, 890-(i-28) * 50, 20, new Array(), new Array()));
     if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
-
+    if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
   }
 
   for (var i = 47; i < 48; i++) {
     paths.push(new Path(i, 450, 70 + (i - 48) * 50, 450, 70 + (i - 47) * 50, new Array(), new Array()));
     if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
-
+    if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
   }
+
+  paths[37].nextPathOptions = [];
+  paths[37].nextPathOptions.push(paths[47]);
+  pathTransitions.push(new PathTransition(paths[37], paths[47], []));
+
+  paths[47].nextPathOptions = [];
+  paths[47].nextPathOptions.push(paths[9]);
+  pathTransitions.push(new PathTransition(paths[47], paths[9], []));
+
+  // Remove 46 to 47
+
+  pathTransitions = pathTransitions.filter(value => !(value.fromPath.name === 46 && value.toPath.name === 47));
 
   paths.forEach(function (elem) { elem.draw(); });
 }
@@ -295,7 +343,9 @@ function createPathTransitions() {
 }
 
 function createCarFleet() {
+  console.log("create car fleet");
   var numberOfCars = document.getElementById("sliderAmountOfCars").value;
+  //numberOfCars = 3;
   for (var i = 0; i < numberOfCars; i++) {
     carFleet.push(new Car(i));
   }
@@ -315,7 +365,8 @@ function createCarFleetFillAllPaths() {
 function carFleetAssignRandomPaths() {
   carFleet.forEach(function (e) {
     var random = getRandomInt(paths.length);
-    e.setPath(paths[random]);
+    if(paths[random].currentCar === null) {e.setPath(paths[random])}
+    else(e.setPath(paths[0]));
     e.draw();
   });
 }
@@ -371,6 +422,16 @@ function consoleLogAllPaths() {
   paths.forEach(function (e) { console.log(e.displayString); });
 }
 
+function consoleLogAllPathTransitions() {
+  console.log("pathsTransitions");
+  //console.log(JSON.stringify(pathTransitions));
+  pathTransitions.forEach(function (e) { 
+    e.consoleLog();
+    //console.log(e.fromPath.name + " " + e.toPath.name); 
+    });
+}
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -378,66 +439,6 @@ function consoleLogAllPaths() {
 // OLD CODE -- TO BE MERGED ABOVE AND THEN DELETED
 //
 //////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-function moveDown(amount) {
-  var car = document.getElementById("car1");
-  car.style.top = parseFloat(getComputedStyle(car).top) + amount + "px";
-}
-function moveUp(amount) {
-  var car = document.getElementById("car1");
-  car.style.top = parseFloat(getComputedStyle(car).top) - amount + "px";
-}
-function moveLeft(amount) {
-  var car = document.getElementById("car1");
-  car.style.left = parseFloat(getComputedStyle(car).left) - amount + "px";
-}
-function moveRight(amount) {
-  var car = document.getElementById("car1");
-  car.style.left = parseFloat(getComputedStyle(car).left) + amount + "px";
-}
-function rotate(value) {
-  var car = document.getElementById("car1");
-  //car.classList.toggle("rotateUp");
-  car.style.transform = "rotate(" + value + "deg)";
-}
-
-var rotateSlider = document.getElementById("rotateSlider");
-
-rotateSlider.oninput = function () {
-  //  console.log("rotate to " + rotateSlider.value);
-  rotate(rotateSlider.value);
-}
-
-
-function moveDownPortola() {
-  console.log("move down portola");
-  // Get the car
-  var car = document.getElementById("car1");
-
-  // Start at (10, 120)
-  car.style.top = "120px";
-  car.style.left = "10px";
-
-  // Then moveRight(20) 60 times
-  var i;
-  for (i = 0; i < 60; i++) {
-    window.setTimeout(moveRight, 1000 / 60 * i, 20);
-  }
-
-}
-*/
-/*
-let sliderArray = document.getElementByClass("slider");
-
-sliderArray.forEach(function(elem) {
-    elem.oninput = function() {
-        this.style.background = 'linear-gradient(to right, #82CFD0 0%, #82CFD0 ' + this.value + '%, #fff ' + this.value + '%, white 100%)'
-    };
-)}
-*/
-
-
 
 
 
