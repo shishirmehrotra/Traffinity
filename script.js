@@ -60,16 +60,6 @@ var Car = function (id) {
 
           this.setPath(validPathTransitions[random].toPath); this.draw();
       }
-      
-
-      /*
-      if (this.currentPath.nextPathOptions.length > 0) {
-        if (this.currentPath.nextPathOptions[0].currentCar === null) {
-          this.setPath(this.currentPath.nextPathOptions[0]);
-          this.draw();
-        }
-      }
-      */
     }
   }
 };
@@ -78,18 +68,18 @@ var Car = function (id) {
 //
 // PATH
 
-var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
+var Path = function (id, x1, y1, x2, y2, types, name) {
 
   
 
   // Set initial values
     this.name = name;
+    this.id = id;
     this.x1 = x1;
     this.y1 = y1;
     this.x2 = x2;
     this.y2 = y2;
     this.types = types;
-    this.nextPathOptions = nextPathOptions;
     this.currentCar = null;
     this.displayString = "";
     this.displayStringLong = "";
@@ -107,11 +97,15 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
     });
     pathsLayer.add(this.arrow);
 
+
+    var r = 10;
+    var initialTheta = Math.PI / 2;
+
     this.arrowLabel = new Konva.Text({
-      x: this.x1,
-      y: this.y1,
+      x: this.x1 + r * Math.cos(this.rotation + initialTheta),
+      y: this.y1 + r * Math.sin(this.rotation + initialTheta),
       text: this.displayString,
-      fontSize: 12,
+      fontSize: 10,
       fontFamily: 'Roboto',
       fill: 'white'
       
@@ -126,10 +120,12 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
     this.displayString = "";
 
     var newString = "";
-    newString += this.name;
+    newString += this.id;
     newString += ": ";
-    //nextPathOptions.forEach(function (elem) { newString += elem.name + "|"; });
+    pathTransitions.filter(e => e.fromPath === this).forEach(e => newString += e.toPath.id + "|");
+    //nextPathOptions.forEach(function (elem) { newString += elem.id + "|"; });
     //newString += " " + this.rotation;
+    if(this.name != null) newString += "\n" + this.name;
     this.displayString = newString;
     this.arrowLabel.text(this.displayString);
     // To Do: Add displayStringLong when we have dependent paths
@@ -190,10 +186,14 @@ var PathTransition = function(fromPath, toPath, dependentPaths) {
   }
 
   this.consoleLog = function () {
-    var string = "From: " + this.fromPath.name + " To: " + this.toPath.name + " [";
+    var string = "From: " + this.fromPath.id;
+    if(this.fromPath.name != null) string += " " + this.fromPath.name + " ";
+    string += " To: " + this.toPath.id 
+    if(this.toPath.name != null) string += " " + this.toPath.name + " "; 
+    string += " [";
     this.dependentPaths.forEach(function(e)
       { 
-        string += e["path"].name + e["priority"];
+        string += e["path"].id + e["priority"];
         });
     string += "]";
     console.log(string);
@@ -273,7 +273,7 @@ function setupSliders() {
 
 }
 
-function createPathLine(x1, y1, x2, y2, numberOfSegments, types, startingPathIndex) {
+function createPathLine(x1, y1, x2, y2, numberOfSegments, types, incomingPathIndex, firstPathName, lastPathName) {
   
   var xIncrement = (x2-x1)/numberOfSegments;
   var yIncrement = (y2-y1)/numberOfSegments;
@@ -283,84 +283,77 @@ function createPathLine(x1, y1, x2, y2, numberOfSegments, types, startingPathInd
   for (var i = 0; i < numberOfSegments; i++) {
     paths.push(new Path(currentIndex, x1+i*xIncrement, y1+i*yIncrement, x1+(i+1)*xIncrement, y1+(i+1)*yIncrement, types));
     if (isFirstSegment === true) {
-      if (startingPathIndex != null) { 
-        pathTransitions.push(new PathTransition(paths[startingPathIndex], paths[currentIndex], [])); 
+      if (incomingPathIndex != null) { 
+        pathTransitions.push(new PathTransition(paths[incomingPathIndex], paths[currentIndex], [])); 
       }
+      paths[currentIndex].name = firstPathName;
       isFirstSegment = false;
     }
-
-    pathTransitions.push(new PathTransition(paths[currentIndex-1], paths[currentIndex], [])); 
+    else {
+      pathTransitions.push(new PathTransition(paths[currentIndex-1], paths[currentIndex], [])); 
+    }
     currentIndex = paths.length;
   }
-  
+  paths[currentIndex-1].name = lastPathName;
 }
 
-
+function findPathByName(name) {
+  var validPaths = paths.filter(e => e.name === name);
+  if (validPaths.length === 1) return validPaths[0];
+  return false;
+}
 
 
 function createPaths() {
   var previousPath;
 
-  // Across Portola
+  
+/*
   for (var i = 0; i < 9; i++) {
-    paths.push(new Path(i, i * 50, 70, (i + 1) * 50, 70, new Array(), new Array()));
-    if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
+    paths.push(new Path(i, i * 50, 70, (i + 1) * 50, 70, new Array(), new Array()));    
     if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
 
   }
 
-  // Into parking lot
+  
   for (var i = 9; i < 13; i++) {
     paths.push(new Path(i, 450, 20 + (i - 8) * 50, 450, 20 + (i - 7) * 50, new Array(), new Array()));
-    if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
     if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
   }
 
   // random angled line
   for (var i = 13; i < 16; i++) {
     paths.push(new Path(i, 450 + (i -13) * 50, 270 + (i - 13) * 50, 450 + (i - 12) * 50, 270 + (i - 12) * 50, new Array(), new Array()));
-    if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
     if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
   }
-
    for (var i = 16; i < 21; i++) {
     paths.push(new Path(i, 600+50*(i-16), 420, 600+50*(i-15), 420, new Array(), new Array()));
-    if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
     if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
   }
-
+8?
   // Into parking lot
-  for (var i = 21; i < 29; i++) {
+  /*for (var i = 21; i < 29; i++) {
     paths.push(new Path(i, 850+(i-21)*5, 420 - (i - 21) * 50, 850+(i-20)*5, 420 - (i - 20) * 50, new Array(), new Array()));
-    if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
     if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
-  }
+  }*/
+  createPathLine(0,    70, 450,  70,  9, [], null, "EStart", "ETurnInStart");  // Across Portola
+  createPathLine(450,  70, 450, 270,  4, [], paths.length-1, "EEnter");  // Into parking lot
+  createPathLine(450, 270, 600, 420,  3, [], paths.length-1);  // Angle along curb
+  createPathLine(600, 420, 850, 420,  5, [], paths.length-1);  // Dropoff Curb
+  createPathLine(850, 420, 890,  20,  8, [], paths.length-1);  // Exit parking lot
+  createPathLine(890,  20, 440,  20,  9, [], paths.length-1, null, "WTurnInStart");  // West bound Portola
+  createPathLine(440,  20, -10,  20, 9, [], paths.length-1);  // West bound Portola
+  createPathLine(450,  20, 450,  70,  1, [], null, null, "WTurnInActive");  // West bound Portola turn into parking lot
 
-  for (var i = 29; i < 47; i++) {
-    paths.push(new Path(i, 890-(i-29) * 50, 20, 890-(i-28) * 50, 20, new Array(), new Array()));
-    if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
-    if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
-  }
 
-  for (var i = 47; i < 48; i++) {
-    paths.push(new Path(i, 450, 70 + (i - 48) * 50, 450, 70 + (i - 47) * 50, new Array(), new Array()));
-    if (i > 0) { paths[i - 1].nextPathOptions.push(paths[i]); }
-    if (i > 0) { pathTransitions.push(new PathTransition(paths[i-1], paths[i], [])); }
-  }
+  pathTransitions.push(new PathTransition(findPathByName("WTurnInStart"), findPathByName("WTurnInActive"), []));
+  //pathTransitions.push(new PathTransition(paths[37], paths[47], []));
 
-  paths[37].nextPathOptions = [];
-  paths[37].nextPathOptions.push(paths[47]);
-  pathTransitions.push(new PathTransition(paths[37], paths[47], []));
-
-  paths[47].nextPathOptions = [];
-  paths[47].nextPathOptions.push(paths[9]);
-  pathTransitions.push(new PathTransition(paths[47], paths[9], []));
+  pathTransitions.push(new PathTransition(findPathByName("WTurnInActive"), findPathByName("EEnter"), []));
+  //pathTransitions.push(new PathTransition(paths[47], paths[9], []));
 
   // Remove 46 to 47
-
-  pathTransitions = pathTransitions.filter(value => !(value.fromPath.name === 46 && value.toPath.name === 47));
-
-  createPathLine(200, 200, 400, 400, 10, [], null);
+  //pathTransitions = pathTransitions.filter(value => !(value.fromPath.id === 46 && value.toPath.id === 47));
 
   paths.forEach(function (elem) { elem.draw(); });
 }
@@ -454,7 +447,7 @@ function consoleLogAllPathTransitions() {
   //console.log(JSON.stringify(pathTransitions));
   pathTransitions.forEach(function (e) { 
     e.consoleLog();
-    //console.log(e.fromPath.name + " " + e.toPath.name); 
+    //console.log(e.fromPath.id + " " + e.toPath.id); 
     });
 }
 
