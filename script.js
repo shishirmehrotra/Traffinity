@@ -128,7 +128,7 @@ var Path = function (name, x1, y1, x2, y2, types, nextPathOptions) {
     var newString = "";
     newString += this.name;
     newString += ": ";
-    nextPathOptions.forEach(function (elem) { newString += elem.name + "|"; });
+    //nextPathOptions.forEach(function (elem) { newString += elem.name + "|"; });
     //newString += " " + this.rotation;
     this.displayString = newString;
     this.arrowLabel.text(this.displayString);
@@ -273,6 +273,31 @@ function setupSliders() {
 
 }
 
+function createPathLine(x1, y1, x2, y2, numberOfSegments, types, startingPathIndex) {
+  
+  var xIncrement = (x2-x1)/numberOfSegments;
+  var yIncrement = (y2-y1)/numberOfSegments;
+  var currentIndex = paths.length;
+  var isFirstSegment = true;
+
+  for (var i = 0; i < numberOfSegments; i++) {
+    paths.push(new Path(currentIndex, x1+i*xIncrement, y1+i*yIncrement, x1+(i+1)*xIncrement, y1+(i+1)*yIncrement, types));
+    if (isFirstSegment === true) {
+      if (startingPathIndex != null) { 
+        pathTransitions.push(new PathTransition(paths[startingPathIndex], paths[currentIndex], [])); 
+      }
+      isFirstSegment = false;
+    }
+
+    pathTransitions.push(new PathTransition(paths[currentIndex-1], paths[currentIndex], [])); 
+    currentIndex = paths.length;
+  }
+  
+}
+
+
+
+
 function createPaths() {
   var previousPath;
 
@@ -335,6 +360,8 @@ function createPaths() {
 
   pathTransitions = pathTransitions.filter(value => !(value.fromPath.name === 46 && value.toPath.name === 47));
 
+  createPathLine(200, 200, 400, 400, 10, [], null);
+
   paths.forEach(function (elem) { elem.draw(); });
 }
 
@@ -345,7 +372,7 @@ function createPathTransitions() {
 function createCarFleet() {
   console.log("create car fleet");
   var numberOfCars = document.getElementById("sliderAmountOfCars").value;
-  //numberOfCars = 3;
+  numberOfCars = 20;
   for (var i = 0; i < numberOfCars; i++) {
     carFleet.push(new Car(i));
   }
