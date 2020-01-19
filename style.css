@@ -35,7 +35,8 @@ h3 {font-size: 16px; font-weight: 500; color: #000000;}
 #simulationSetup {margin: auto; width: 85%;}
 #resultsSetup    {margin: auto; width: 85%;}
 #pathSetup       {margin: auto; width: 85%;}
-#transitionSetup  {margin: auto; width: 85%;}
+#transitionSetup {margin: auto; width: 85%;}
+#timeWarpSliderPanel {margin: auto; width: 50%;}
 /**************************************************************************
   PANEL: TRAFFIC SETTINGS
 ***************************************************************************/
@@ -79,6 +80,10 @@ h3 {font-size: 16px; font-weight: 500; color: #000000;}
 .radio-toolbar label:hover {background-color: hsl(199, 100%, 80%);}
 .radio-toolbar input[type="radio"]:checked + label {background: #2196F3; color: #FFFFFF;}
 /*.radio-toolbar input[type="radio"]:focus + label { border: 2px dashed #444;} */
+#togglePathCheckBoxes {
+    margin: 10px; width: 100%; height: 50px; border: none; 
+  display:flex; align-items: center; justify-content: center;
+}
 
 /**************************************************************************
   PANEL: RUN SIMULATION
@@ -89,6 +94,9 @@ h3 {font-size: 16px; font-weight: 500; color: #000000;}
   align-items: center;
   justify-content: center;
 }
+//#timeWarpSliderPanel {display: flex; align-items: center; justify-content: center; width: 100%}
+#sliderTimeWarp {width: 60%;}
+
 /**************************************************************************
   PANEL: Results
 ***************************************************************************/
