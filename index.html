@@ -5,6 +5,7 @@
 	<title>Traffinity</title>
 	<link rel=stylesheet href="style.css" />
 	<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900,&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,300,400&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -57,17 +58,20 @@
         <div id="parkingLotSetup">
 
           <div class="radio-toolbar">
-            <input type="radio" id="Today" name="radioParkingLotSetup" value="Today" checked>
+            <input type="radio" id="Simple" name="radioParkingLotSetup" value="Simple" onClick="createPaths()" checked>
+            <label for="Simple">Simple</label><br>  
+      
+            <input type="radio" id="Today" name="radioParkingLotSetup" value="Today" onClick="createPaths()">
             <label for="Today">Today</label>
 
-            <input type="radio" id="All Left" name="radioParkingLotSetup" value="All Left">
+            <input type="radio" id="All Left" name="radioParkingLotSetup" value="All Left" onClick="createPaths()">
             <label for="All Left">All Left</label>
 
-            <input type="radio" id="Exit Right" name="radioParkingLotSetup" value="Exit Right">
+            <input type="radio" id="Exit Right" name="radioParkingLotSetup" value="Exit Right" onClick="createPaths()">
             <label for="Exit Right">Exit Right</label> 
 
-            <input type="radio" id="Add New" name="radioParkingLotSetup" value="Add New">
-            <label for="Add New">Add New</label><br>
+            <!--<input type="radio" id="Add New" name="radioParkingLotSetup" value="Add New" onClick="createPaths()">
+            <label for="Add New">Add New</label><br> -->
             </div>
             <div id="togglePathCheckBoxes">
               <p>
@@ -82,7 +86,7 @@
       <div id="simulationPanel" class="panel">
         <h2>Run Simulation </h2>
         <div id="simulationSetup">
-          <button id="buttonBackward" name="runSymptoms" value="Backward" onClick="resetSimulation()">
+          <button id="buttonBackward" name="runSymptoms" value="Backward" onClick="clearMap()">
             <img src="Buttons/GoBackOne.png"/>
           </button>
 

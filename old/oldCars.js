@@ -33,10 +33,8 @@ var carColors = [
   "#12FF00", 
   "#00FF00"]
 
-
 var Car = function (id) {
 
-// Define properties of cars
   this.currentPath = null;
   this.id = id;
   this.targetAverageSpeed = document.getElementById("sliderAverageSpeed").value;
@@ -45,53 +43,11 @@ var Car = function (id) {
   this.ticksSinceLastMoveHistory = [];
   //this.color = carColors[carColors.length];
   this.currentRotation = 0;
-  this.ticksSinceStartDropoff = 0;
-  this.isDroppingOff = false;
-  this.passengerCount = 2;
-  this.displayString = "";
-  this.colorIndex = 0;
-  this.showLabel = false;
-  var thisCar = this;
 
-// Define Car shapes
   this.group = new Konva.Group({
     x: 0,
     y: 0
   })
-
-  this.carLabel = new Konva.Text({
-    //x: this.centerX - (45 / 2),
-    //y: this.y1 + 10,
-    x: 0,
-    y: 15,
-    text: this.displayString,
-    fontSize: 7,
-    lineHeight: 1.4,
-    //fontFamily: 'Roboto',
-    fontFamily: 'Yanone+Kaffeesatz',
-    fill: 'black',
-    //scaleY: scaleY      
-  });
-  this.group.add(this.carLabel);
-  this.carLabel.hide();
-
-  this.setDisplayString = function () {
-    this.displayString = "Car ";
-    this.displayString += id; 
-    this.displayString += "\nTicks " + this.ticksSinceLastMove 
-    this.displayString += " [" + this.ticksSinceLastMoveHistory + "]"; 
-    this.getCarColor();
-    //this.displayString += "\nColor " + this.colorIndex;
-    //this.displayString += "\nPassengers " + this.passengerCount;
-    if(this.isDroppingOff) 
-      this.displayString += "\nTicks since start dropoff " + this.ticksSinceStartDropoff;
-    
-    this.carLabel.text(this.displayString);
-    //carsLayer.draw();
-    //console.log(this.displayString);
-  }
-
-
 
   this.carOutline = new Konva.Line({
         points: [ 0,  0, 
@@ -204,7 +160,7 @@ var Car = function (id) {
         });
   this.group.add(this.driver);
 
-  /*
+/*
       var carDoorSlot = new Konva.Rect({
           x: 5,
           y: 13,
@@ -215,7 +171,7 @@ var Car = function (id) {
           strokeWidth: .5,
       });
       group.add(carDoorSlot);
-  */
+*/
 
   this.carDoor = new Konva.Rect({
           x: 15,
@@ -228,39 +184,132 @@ var Car = function (id) {
           cornerRadius: 7
       });
   this.carDoor.rotate(135);
+  this.carDoor.moveToTop();
   this.carDoor.hide();
   this.group.add(this.carDoor);
-  this.carDoor.moveToTop();
 
 
 
-
-  carsLayer.add(this.group);
-  this.group.on('mousedown', function () {
-    if(thisCar.showLabel) {thisCar.carLabel.hide(); thisCar.showLabel = false;}
-    else {thisCar.carLabel.show(); thisCar.showLabel = true;}
-    carsLayer.batchDraw();
-  })
+/*
+  this.passengerOne = new Konva.Rect({
+    x: 4,
+    y: 4,
+    width: 4,
+    height: 4,
+    fill: 'white',
+    stroke: 'black',
+    strokeWidth: 1,
+    cornerRadius: 7
+  });
   
-// Define functions
+
+  this.passengerTwo = new Konva.Rect({
+    x: 10,
+    y: 4,
+    width: 4,
+    height: 4,
+    fill: 'white',
+    stroke: 'black',
+    strokeWidth: 1,
+    cornerRadius: 7
+  });
+
+  this.rectangle = new Konva.Rect({
+     x: 0,
+     y: 0,
+    width: 26,
+    height: 12,
+    fill:'red',
+    cornerRadius: 3
+  });
+  this.front = new Konva.Rect({
+    x:20, 
+    y:5,
+    width: 4,
+    height: 10,
+    fill: 'black'
+  })
+
+  this.back = new Konva.Rect({
+    x:11, 
+    y:1,
+    width: 3,
+    height: 10,
+    fill: 'black'
+  })
+
+  this.sideRight = new Konva.Rect({
+    x:2,
+    y:1,
+    width:22,
+    height:1,
+    fill: 'black'
+  })
+  this.sideLeft = new Konva.Rect({
+    x:2,
+    y:10,
+    width:22,
+    height:1,
+    fill: 'black'
+  })
+  this.front.moveToTop();
+  this.back.moveToTop();
+  this.sideRight.moveToTop();
+  this.sideLeft.moveToTop();
+  this.passengerTwo.moveToTop();
+  this.passengerOne.moveToTop();
+
+  this.group.add(this.rectangle);
+  this.group.add(this.passengerOne);
+  this.group.add(this.passengerTwo);
+  this.group.add(this.front);
+  this.group.add(this.back);
+  this.group.add(this.sideRight);
+  this.group.add(this.sideLeft);
+  */
+  carsLayer.add(this.group);
+  
+  //carsLayer.add(this.rectangle);
+  //carsLayer.draw();
+
+  // Create DOM element 
+  /*this.element = document.createElement("IMG");
+  this.element.src = "https://cl.ly/80cb71d6061a/Car_%20Red.png";
+  this.element.classList.add("car");
+  this.element.id = 'car' + id;
+  mapContainer.appendChild(this.element);
+*/
+  // Set functions: draw, rotate
   this.draw = function () {
-    
+    /*
+    this.element.style.left = this.currentPath.x2 + "px";
+    this.element.style.top = this.currentPath.y2 + "px";
+    this.element.style.transform = "rotate(" + this.currentPath.rotation + "deg)";
+*/
     if (this.currentPath != null){
+      //this.circle.x(this.currentPath.x1+13);
+      //this.circle.y(this.currentPath.y1+6);     
+
+
+      //this.rectangle.x(this.currentPath.x1);
+      //this.rectangle.y(this.currentPath.y1);
 
       this.group.x(this.currentPath.x1);
       this.group.y(this.currentPath.y1);
 
       var needToRotate = this.currentPath.rotation - this.currentRotation;
-      
+      //this.rectangle.rotate(needToRotate);
+      //this.circle.rotate(needToRotate);
       this.group.rotate(needToRotate);
       this.currentRotation = this.currentPath.rotation;
 
-      this.carOutline.fill(this.getCarColor());
+      this..fill(this.getCarColor());
 
       carsLayer.batchDraw();
     }
   };
 
+  //this.rotate = function (value) { this.element.style.transform = "rotate(" + value + "deg)"; }
 
   this.setAverageSpeed = function() {
     this.ticksSinceLastMove = 0;
@@ -269,17 +318,20 @@ var Car = function (id) {
   }
 
   this.getCarColor = function() {
-    this.colorIndex = Math.round(Math.max(carColors.length - 1 - Math.max(average(this.ticksSinceLastMoveHistory), this.ticksSinceLastMove)*2, 0));
-    /*if(this.colorIndex < 27) {
+    var index = Math.round(Math.max(carColors.length - Math.max(average(this.ticksSinceLastMoveHistory), this.ticksSinceLastMove)*1, 0));
+    /*if(index < 27) {
       console.log("car " + this.id 
                 + " ticksSinceLastMoveHistory " + this.ticksSinceLastMoveHistory 
                 + " ticksSinceLastMove " + this.ticksSinceLastMove 
-                + " index " + this.colorIndex);
+                + " index " + index);
     }*/
-    return carColors[this.colorIndex];
+    return carColors[index];
   }
 
   this.setDone = function () { 
+    //this.element.hidden = true; 
+    //this.rectangle.hide();
+    //this.circle.hide();
     this.group.hide();
 
     if (this.currentPath != null) { this.currentPath.clearCurrentCar(); } 
@@ -287,82 +339,47 @@ var Car = function (id) {
   }
 
   this.setPath = function (path) {
+    //this.element.hidden = false;
     this.group.show();
     if (this.currentPath != null) { this.currentPath.clearCurrentCar(); }
     this.currentPath = path;
     path.currentCar = this;
+    //this.draw();
+    //this.currentPath.arrow.stroke('white');
+    //pathsLayer.draw();
   }
-
-  this.startDropoff = function () {
-    this.carDoor.show()
-    this.isDroppingOff = true;
-    this.ticksSinceStartDropoff = 0;
-  }
-
-  this.checkIsDoneDroppingOff = function () {
-    var targetDropOffTicks = document.getElementById("sliderTaskTime").value;
-    if(this.ticksSinceStartDropoff > targetDropOffTicks) {
-      this.stopDropoff();
-      return true;
-    }
-    else {
-      this.ticksSinceStartDropoff++;
-    }
-  }
-
-  this.stopDropoff = function () {
-    this.isDroppingOff = false;
-    this.passengerCount = 0;
-    this.carDoor.hide();
-    this.passengerOne.hide();
-    this.passengerTwo.hide();
-  }
-
 
   this.nextStep = function () {
     var beforePath = this.currentPath;
     var moved = false;
-
-
-
     // TODO select from openTransitions
     if (this.currentPath != null) {
-      if(this.isDroppingOff === false 
-        || (this.isDroppingOff === true && this.checkIsDoneDroppingOff() )) {
-        if (this.ticksSinceLastMove*4 >= -this.targetAverageSpeed+99) {
-          var validPathTransitions = pathTransitions.filter(e => e.fromPath === this.currentPath && e.isAvailable());
-          if(validPathTransitions.length > 0) {
-              var random = getRandomInt(validPathTransitions.length);
+      if (this.ticksSinceLastMove*4 >= -this.targetAverageSpeed+100) {
+        var validPathTransitions = pathTransitions.filter(e => e.fromPath === this.currentPath && e.isAvailable());
+        if(validPathTransitions.length > 0) {
+            var random = getRandomInt(validPathTransitions.length);
 
-              this.setPath(validPathTransitions[random].toPath);
-              if (this.currentPath != beforePath) {
-                this.draw();
-                moved = true;
-              }
-          }
-          if (this.currentPath != null) {
-            if (this.currentPath.types.length > 0) {
-              if (this.currentPath.types.includes("dropoff") && this.passengerCount>0){
-                this.startDropoff();
-              }
-              if (this.currentPath.types.includes("end")) {
-                this.setDone();
-              }
-            } 
-          }       
+            this.setPath(validPathTransitions[random].toPath);
+            if (this.currentPath != beforePath) {
+              this.draw();
+              moved = true;
+            }
         }
+        //else {this.ticksSinceLastMove++}
+        if (this.currentPath.types != null) {
+          if (this.currentPath.types.includes("end")) {
+          this.setDone();
+          }
+        }        
       }
 
     }
-    if(moved) { this.ticksSinceLastMove = 0;}
-    else      { this.ticksSinceLastMove++; };
-
-    this.ticksSinceLastMoveHistory.push(this.ticksSinceLastMove);
-    this.ticksSinceLastMoveHistory = this.ticksSinceLastMoveHistory.slice(-5);
-
-    this.setDisplayString();
-    this.draw();
+    if(moved) {
+        //this.ticksSinceLastMovePrevious = this.ticksSinceLastMove;
+        this.ticksSinceLastMoveHistory.push(this.ticksSinceLastMove);
+        this.ticksSinceLastMoveHistory = this.ticksSinceLastMoveHistory.slice(-5);
+        this.ticksSinceLastMove = 0;}
+    else      {this.ticksSinceLastMove++; this.draw();};
   }
-
 
 };

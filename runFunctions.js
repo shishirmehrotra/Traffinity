@@ -16,6 +16,11 @@ function handleConfigureClick(myRadio) {
   }
 }
 
+
+var setAverageSpeed = function() {
+  carFleet.forEach(e => e.setAverageSpeed());
+}
+
 function showPathLines() {
   if (document.getElementById("checkboxShowPathLines").checked === true) {
    pathsLayer.show();
@@ -33,16 +38,18 @@ function showPathNames() {
     pathNamesLayer.hide();
   }
 };
+
 var timer;
+var lastTime = +new Date;
 
 function runSimulation() {
-  var timeScale = (100-document.getElementById("sliderTimeWarp").value)*0.5;
+  var timeScale = Math.max((100-document.getElementById("sliderTimeWarp").value*2)*10,1);
 
   console.log("time scale: " + timeScale);
 
   window.clearInterval(timer);
   timer = window.setInterval(nextStep, timeScale);
-/*
+  /*
   timer = window.clearTimeout()
   for (var i = 0; i < 2000; i++) {
     timer = window.setTimeout(nextStep, timeScale/30*i, 20);
@@ -55,7 +62,7 @@ function pauseSimulation() {
 }
 
 function resetSimulation() {
-    carFleetAssignRandomPaths();
+    //carFleetAssignRandomPaths();
 }
 
 function nextStep() {
@@ -63,4 +70,11 @@ function nextStep() {
   carFleet.forEach(function (elem) {
     elem.nextStep()
   })
+
+  // DEBUG
+  /*
+  time = +new Date;
+  console.log("Time elapsed = " + (time-lastTime));
+  lastTime = time;
+  */
 }

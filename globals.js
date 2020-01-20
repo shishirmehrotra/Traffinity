@@ -6,6 +6,8 @@ var paths = [];
 var pathTransitions = [];
 var carGenerator = new CarGenerator();
 
+
+// Setup Konva components for drawing
 var pathsStage = new Konva.Stage({
   container: 'pathsCanvasDiv',
   width: 1400,
@@ -25,7 +27,6 @@ pathsStage.add(pathNamesLayer);
 });*/
 var carsLayer = new Konva.Layer();
 
-// add the layer to the stage
 pathsStage.add(carsLayer);
 
 var selectedPath = null;

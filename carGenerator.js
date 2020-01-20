@@ -4,12 +4,14 @@
 
 
 var CarGenerator = function(){
+// Define properties of CarGenerator
   this.leftCarCount = 0;
   this.rightCarCount = 0;
   this.currentDirectionRatio = document.getElementById("sliderDirectionRatio").value;
   this.ticksSinceLastCar = 0;
   this.currentAmountOfCars = document.getElementById("sliderAmountOfCars").value;
 
+// Define functions
   this.setRatio = function() {
     this.leftCarCount = 0;
     this.rightCarCount = 0;
@@ -32,7 +34,7 @@ var CarGenerator = function(){
       // should we put the cars on the left or right?
       
       if (this.currentDirectionRatio/100 < this.rightCarCount/(this.leftCarCount+ this.rightCarCount)) {
-        var path = findPathByName("EStart");
+        var path = findPathByName("E Start");
         if(path.currentCar === null) {
           carFleet.push(new Car(carFleet.length));
           carFleet[carFleet.length-1].setPath(path);
@@ -40,7 +42,7 @@ var CarGenerator = function(){
         }
       }
       else {
-        var path = findPathByName("WStart");
+        var path = findPathByName("W Start");
 
         if(path.currentCar === null) {
           carFleet.push(new Car(carFleet.length));  

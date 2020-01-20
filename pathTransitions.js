@@ -3,10 +3,12 @@
 // PATH TRANSITIONS
 
 var PathTransition = function(fromPath, toPath, dependentPaths) {
+// Define properties
   this.fromPath = fromPath;
   this.toPath = toPath;
   this.dependentPaths = dependentPaths;
 
+// Define functions
   this.isAvailable = function(priority) {
     var available = true;
     

@@ -10,8 +10,8 @@ setupSliders();
 createPaths();
 
 createPathTransitions();
-createCarFleet();
-resetSimulation();
+//createCarFleet();
+//resetSimulation();
 runSimulation();
 //createCarFleetFillAllPaths();
 //createCarFleetRandom();
@@ -21,7 +21,3 @@ runSimulation();
 consoleLogAllPaths();
 consoleLogAllPathTransitions();
 
-
-var setAverageSpeed = function() {
-  carFleet.forEach(e => e.setAverageSpeed());
-}
