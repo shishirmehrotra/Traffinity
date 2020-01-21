@@ -23,6 +23,30 @@ var PathTransition = function(fromPath, toPath, dependentPaths) {
 
   }
 
+  this.addImplicitPathTransitions = function () {
+    var level1Paths = this.toPath.getNextPathOptions();
+
+    var level2Paths = [];
+    level1Paths.forEach(function(p){
+      p.getNextPathOptions().forEach(function(e) {
+        if(!level2Paths.includes(e)) {level2Paths.push(e)}})
+    });
+
+    var level3Paths = [];
+    level2Paths.forEach(function(p){
+      p.getNextPathOptions().forEach(function(e) {
+        if(!level3Paths.includes(e)) {level3Paths.push(e)}})
+    });
+
+    level1Paths.forEach(p => this.dependentPaths.push({"path": p, "priority": 1}));
+    level2Paths.forEach(p => this.dependentPaths.push({"path": p, "priority": 2}));
+    level3Paths.forEach(p => this.dependentPaths.push({"path": p, "priority": 3}));
+
+
+
+  }
+
+
   this.consoleLog = function () {
     var string = "From: " + this.fromPath.id;
     if(this.fromPath.name != null) string += " " + this.fromPath.name + " ";

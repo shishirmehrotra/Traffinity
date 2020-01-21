@@ -34,7 +34,7 @@ var CarGenerator = function(){
       // should we put the cars on the left or right?
       
       if (this.currentDirectionRatio/100 < this.rightCarCount/(this.leftCarCount+ this.rightCarCount)) {
-        var path = findPathByName("E Start");
+        var path = findPathByNames(["E Begin", "Start"]);
         if(path.currentCar === null) {
           carFleet.push(new Car(carFleet.length));
           carFleet[carFleet.length-1].setPath(path);
@@ -42,7 +42,7 @@ var CarGenerator = function(){
         }
       }
       else {
-        var path = findPathByName("W Start");
+        var path = findPathByNames(["W Begin", "Start"]);
 
         if(path.currentCar === null) {
           carFleet.push(new Car(carFleet.length));  

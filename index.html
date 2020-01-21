@@ -37,17 +37,17 @@
         <h2>Traffic Settings </h2>
         <div id="slidersCarSetup">
           <h3>Car Setup</h3> <p>
-          <input class="slider" id="sliderAmountOfCars" type="range" min="0" max="100" onInput="carGenerator.setAmountOfCars()"> Amount of Cars <br>
-          <input class="slider" id="sliderDirectionRatio" type="range" min="0" max="100" onInput="carGenerator.setRatio()"> Direction Ratio<br>
-          <input class="slider" id="sliderAverageSpeed" type="range" min="0" max="99" value ="99" onInput="setAverageSpeed()"> Average Speed<br>
+          <input class="slider" id="sliderAmountOfCars" type="range" min="0" max="100" value="75" onInput="carGenerator.setAmountOfCars()"> Amount of Cars <br>
+          <input class="slider" id="sliderDirectionRatio" type="range" min="0" max="99" onInput="carGenerator.setRatio()"> Direction Ratio<br>
+          <input class="slider" id="sliderAverageSpeed" type="range" min="0" max="99" value ="75" onInput="setAverageSpeed()"> Average Speed<br>
           <h3>Location Preference</h3><p>
-          <input class="slider" id="sliderCurbPreferred" type="range" min="0" max="100"> Curb Preferred<br>
-          <input class="slider" id="sliderParkingSpotPreferred" type="range" min="0" max="100"> Parking Spot Preferred<br>
-          <input class="slider" id="sliderStreetPreferred" type="range" min="0" max="100"> Street Preferred<br>
+          <input class="slider" id="sliderCurbPreferred" type="range" min="0" max="100" value="50"> Curb Preferred<br>
+          <input class="slider" id="sliderParkingSpotPreferred" type="range" min="0" max="100" value = "50"> Parking Spot Preferred<br>
+          <input class="slider" id="sliderStreetPreferred" type="range" min="0" max="100" value="0"> Street Preferred<br>
           <h3>Politeness</h3><p>
-          <input class="slider" id="sliderCarSpacing" type="range" min="0" max="100"> Car Spacing <br>
+          <input class="slider" id="sliderCarSpacing" type="range" min="0" max="99" value="20"> Car Spacing <br>
           <input class="slider" id="sliderTaskTime" type="range" min="0" max="100"> Drop off/Pick up Duration<br>
-          <input class="slider" id="sliderPullForward" type="range" min="0" max="100"> Pull Forward<br>    
+          <input class="slider" id="sliderPullForward" type="range" min="0" max="99" value="99"> Pull Forward<br>    
         </div>
       </div>
     </div>
@@ -86,7 +86,7 @@
       <div id="simulationPanel" class="panel">
         <h2>Run Simulation </h2>
         <div id="simulationSetup">
-          <button id="buttonBackward" name="runSymptoms" value="Backward" onClick="clearMap()">
+          <button id="buttonBackward" name="runSymptoms" value="Backward" onClick="createPaths()">
             <img src="Buttons/GoBackOne.png"/>
           </button>
 

@@ -288,74 +288,82 @@ var Car = function (id) {
 
   this.setPath = function (path) {
     this.group.show();
+    if (this.currentPath === false) {
+      console.log("error: trying to set path to false")
+    }
     if (this.currentPath != null) { this.currentPath.clearCurrentCar(); }
     this.currentPath = path;
     path.currentCar = this;
   }
 
-  this.startDropoff = function () {
-    this.carDoor.show()
-    this.isDroppingOff = true;
-    this.ticksSinceStartDropoff = 0;
-  }
-
-  this.checkIsDoneDroppingOff = function () {
-    var targetDropOffTicks = document.getElementById("sliderTaskTime").value;
-    if(this.ticksSinceStartDropoff > targetDropOffTicks) {
-      this.stopDropoff();
-      return true;
+  // Functions for during dropoff
+    this.startDropoff = function () {
+      this.carDoor.show()
+      this.isDroppingOff = true;
+      this.ticksSinceStartDropoff = 0;
     }
-    else {
-      this.ticksSinceStartDropoff++;
+
+    this.checkIsDoneDroppingOff = function () {
+      var targetDropOffTicks = document.getElementById("sliderTaskTime").value;
+      if(this.ticksSinceStartDropoff > targetDropOffTicks) {
+        this.stopDropoff();
+        return true;
+      }
+      else {
+        this.ticksSinceStartDropoff++;
+      }
     }
-  }
 
-  this.stopDropoff = function () {
-    this.isDroppingOff = false;
-    this.passengerCount = 0;
-    this.carDoor.hide();
-    this.passengerOne.hide();
-    this.passengerTwo.hide();
-  }
+    this.stopDropoff = function () {
+      this.isDroppingOff = false;
+      this.passengerCount = 0;
+      this.carDoor.hide();
+      this.passengerOne.hide();
+      this.passengerTwo.hide();
+    }
 
-
+  // Next Step Execution
   this.nextStep = function () {
+    // Goal: Decide if I should move, and if so, where to?
+    
     var beforePath = this.currentPath;
     var moved = false;
 
-
-
-    // TODO select from openTransitions
+    // Am I on a path?
     if (this.currentPath != null) {
-      if(this.isDroppingOff === false 
-        || (this.isDroppingOff === true && this.checkIsDoneDroppingOff() )) {
-        if (this.ticksSinceLastMove*4 >= -this.targetAverageSpeed+99) {
-          var validPathTransitions = pathTransitions.filter(e => e.fromPath === this.currentPath && e.isAvailable());
-          if(validPathTransitions.length > 0) {
-              var random = getRandomInt(validPathTransitions.length);
+      // Drop off: If I'm still dropping off, then don't move
+      if(this.isDroppingOff === false || (this.isDroppingOff === true && this.checkIsDoneDroppingOff() )) {
 
-              this.setPath(validPathTransitions[random].toPath);
-              if (this.currentPath != beforePath) {
-                this.draw();
-                moved = true;
-              }
+        // If I haven't waited long enough for what the averageSpeed slider says, then I don't move either  
+        if (this.ticksSinceLastMove*4 >= -this.targetAverageSpeed+99) {
+
+          // whew, all the checks are done. Now I can move! Now where to?
+          var targetPathToMoveTo = this.selectFromNextPathOptions();
+          if (targetPathToMoveTo != beforePath && targetPathToMoveTo != null) {
+            if(targetPathToMoveTo === false) {
+              console.log("error: targetPathToMoveTo is false");
+            }
+            this.setPath(targetPathToMoveTo);
+            this.draw();
+            moved = true;
           }
+
+          // Now that I have moved, let's check if we need to initiate another state: Dropoff, Pickup, or End
           if (this.currentPath != null) {
             if (this.currentPath.types.length > 0) {
-              if (this.currentPath.types.includes("dropoff") && this.passengerCount>0){
-                this.startDropoff();
+              if (this.currentPath.types.includes("dropoff") && this.passengerCount>0) { 
+                if(this.shouldIcurbDropOffHere()) this.startDropoff();
               }
-              if (this.currentPath.types.includes("end")) {
-                this.setDone();
-              }
-            } 
-          }       
-        }
+              if (this.currentPath.types.includes("end")) this.setDone()
+            }
+          } 
+        }       
       }
-
     }
+
+
     if(moved) { this.ticksSinceLastMove = 0;}
-    else      { this.ticksSinceLastMove++; };
+    else      { this.ticksSinceLastMove++;  };
 
     this.ticksSinceLastMoveHistory.push(this.ticksSinceLastMove);
     this.ticksSinceLastMoveHistory = this.ticksSinceLastMoveHistory.slice(-5);
@@ -364,5 +372,109 @@ var Car = function (id) {
     this.draw();
   }
 
+  this.selectFromNextPathOptions = function() {
+    // Goal: I've decided to move, yah! Where should I move to? Let's pick a path and return it!
+
+    // Where can I move to?
+      var validPathTransitions = [];
+      var currentPriority = Math.floor(document.getElementById("sliderCarSpacing").value/25);
+      if (this.currentPath != null) validPathTransitions = this.currentPath.getOpenPathTransitions(currentPriority);
+
+    // Check 1: Do I have ANY valid places to go?
+      if(validPathTransitions.length === 0) return null;
+
+    // Check 2: Am I in a special decision point?
+
+      // 2.1: I'm coming from the East, and am at the parking lot entrance. Should I turn in?
+      //      Factors: Am I trying to dropoff? And if I am, do I prefer to dropoff on the street? 
+
+      if (this.currentPath === findPathByNames(["E Begin", "End"])) {
+        if (this.passengerCount > 0) return this.canIGoToPathName("E Enter", validPathTransitions);
+        else                         return this.canIGoToPathName("Second Inner East Portola", validPathTransitions);
+      }
+
+      // 2.2: I'm on the angle that leads into the second parking lot line. Should I turn in?
+      //      Factors: Do I want to park?
+      if (this.currentPath === findPathByNames(["Angle Into Second Parking Line", "End"])) {
+        var parkingSpotPrefSlider = document.getElementById("sliderParkingSpotPreferred").value;
+        if (getRandomInt(100) < parkingSpotPrefSlider ) return this.canIGoToPathName("2nd Parking Line", validPathTransitions);
+        else                                            return this.canIGoToPathName("Angle Into Inner Curb Lane", validPathTransitions);
+      }
+
+      // 2.3: I'm at the second dropoff line. Should I turn in?
+      //      Factors: Am I done with dropping off or parking? Is all the dropoff spots full?
+      if (this.currentPath === findPathByNames(["Angle Into Inner Curb Lane", "End"])) {
+        if (this.passengerCount === 0) return this.canIGoToPathName("Inner Curb Lane ", validPathTransitions);
+        else                           return this.canIGoToPathName("Angle Between Curb Lanes", validPathTransitions);
+      }
+      // 2.4: I'm at the first dropoff line. How far in should I go?
+      //      Factors: Is the pull forward slider high? Should I go all the way down the line?
+
+      // 2.5: I'm at the first parking lot line. Should I turn in?
+      //      Factors: Am I done dropping off? Do I want to park? 
+      if (this.currentPath === findPathByNames(["Third Exit Inner Lane", "End"])) {
+        if (this.passengerCount > 0) return this.canIGoToPathName("1st Parking Line", validPathTransitions);
+        else                         return this.canIGoToPathName("Fourth Exit Inner Lane", validPathTransitions);
+      }
+
+
+      // 2.6: I'm at the exit? Which way should I turn?
+      //      Factors: Am I still dropping off? If so, go left. Else, choose based on the direction ratio slider.
+      if (this.currentPath === findPathByNames(["Fourth Exit Inner Lane", "End"])) {
+        var directionRatioSlider = document.getElementById("sliderDirectionRatio").value;
+        if (getRandomInt(100) > directionRatioSlider ) return this.canIGoToPathName("Right Exit", validPathTransitions);
+        else                                           return this.canIGoToPathName("Exit Cross Portola", validPathTransitions);
+      }
+
+      // 2.7: I'm coming from the West, and am at the parking lot entrance. Should I turn in?
+      //      Factors: Am I trying to dropoff? 
+      if (this.currentPath === findPathByNames(["Second Outer West Portola", "End"])) {
+        if (this.passengerCount > 0) return this.canIGoToPathName("Outer Entrance", validPathTransitions);
+        else                         return this.canIGoToPathName("Third Outer West Portola", validPathTransitions);
+      }
+      
+
+    // Check 3: I guess I'm not at a special decision point, so let's just pick randomly?
+      var random = getRandomInt(validPathTransitions.length);
+      return validPathTransitions[random].toPath;
+
+    // Guess we didn't find any valid paths, so we'll just return null (and stay put)
+    return null;
+  }
+
+  this.canIGoToPathName = function(pathNamePrefix, validPathTransitions) {
+    var selectedPathTransition;
+    selectPathTransition = validPathTransitions.filter(p => p.toPath.name.startsWith(pathNamePrefix))[0];
+    if(selectPathTransition != null) return selectPathTransition.toPath;
+    else return null;
+  }
+
+  this.shouldIcurbDropOffHere = function() {
+    var pullForwardSlider = document.getElementById("sliderPullForward").value;
+
+    // What are all the curb drop off paths?
+    var curbDropOffPaths = paths.filter(p => p.types.includes("dropoff") && p.types.includes("curb"));
+    var tolerateSpacesInFrontOfMe = curbDropOffPaths.length * (1 - pullForwardSlider / 100) + 1;
+
+    // Where am I in that line?
+    var myPositionInCurbDropOffPaths = curbDropOffPaths.indexOf(this.currentPath);
+
+    // How many open curb drop off paths are in front of me?
+    var positionOfNextCar = 100;
+    for (var i = myPositionInCurbDropOffPaths+1; i < curbDropOffPaths.length; i++) {
+      if(curbDropOffPaths[i].currentCar != null && curbDropOffPaths[i].currentCar.isDroppingOff) positionOfNextCar = i;
+      break;
+    }
+
+    //var availableCurbDropOffPaths = curbDropOffPaths.filter(p => p.currentCar === null);
+    //var furtherestAvailableCurbDropOffPath = availableCurbDropOffPaths[availableCurbDropOffPaths.length - 1];
+    //var positionOfFurthestAvailableCurbDropOffPath = curbDropOffPaths.indexOf(furtherestAvailableCurbDropOffPath);
+    //var delta = positionOfFurthestAvailableCurbDropOffPath - myPositionInCurbDropOffPaths;
+
+    var delta = Math.min(positionOfNextCar-myPositionInCurbDropOffPaths, curbDropOffPaths.length-myPositionInCurbDropOffPaths);
+
+    if(delta <= tolerateSpacesInFrontOfMe) return true;
+    else                              return false;
+  }
 
 };

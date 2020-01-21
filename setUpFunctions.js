@@ -5,6 +5,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////
 
 function clearMap() {
+  pauseSimulation();
   pathsLayer.destroy();
   pathNamesLayer.destroy();
   carsLayer.destroy();
@@ -37,31 +38,14 @@ function setupSliders() {
 
 }
 
-function createPathLine(x1, y1, x2, y2, numberOfSegments, types, incomingPathIndex, firstPathName, lastPathName) {
+function createPathLineBetweenPaths(fromPath, toPath, numberOfSegments, types, incomingPathNames, pathLineName, startIndex, includeStart, includeEnd) {
+  var newPathEndName = createPathLine(fromPath.x2, fromPath.y2, toPath.x1, toPath.y1, numberOfSegments, types, incomingPathNames, pathLineName, startIndex, includeStart, includeEnd)
 
-  var xIncrement = (x2 - x1) / numberOfSegments;
-  var yIncrement = (y2 - y1) / numberOfSegments;
-  var currentIndex = paths.length;
-  var isFirstSegment = true;
-
-  for (var i = 0; i < numberOfSegments; i++) {
-    paths.push(new Path(currentIndex, x1 + i * xIncrement, y1 + i * yIncrement, x1 + (i + 1) * xIncrement, y1 + (i + 1) * yIncrement, [...types]));
-    if (isFirstSegment === true) {
-      if (incomingPathIndex != null) {
-        pathTransitions.push(new PathTransition(paths[incomingPathIndex], paths[currentIndex], []));
-      }
-      paths[currentIndex].name = firstPathName;
-      isFirstSegment = false;
-    }
-    else {
-      pathTransitions.push(new PathTransition(paths[currentIndex - 1], paths[currentIndex], []));
-    }
-    currentIndex = paths.length;
-  }
-  paths[currentIndex - 1].name = lastPathName;
+  pathTransitions.push(new PathTransition(fromPath,                        findPathByName(newPathEndName), []));  
+  pathTransitions.push(new PathTransition(findPathByName(newPathEndName),  toPath, []));  
 }
 
-function createPathLineNew(x1, y1, x2, y2, numberOfSegments, types, incomingPathName, pathLineName, startIndex, includeStart, includeEnd) {
+function createPathLine(x1, y1, x2, y2, numberOfSegments, types, incomingPathNames, pathLineName, startIndex, includeStart, includeEnd) {
 
   var xIncrement = (x2 - x1) / numberOfSegments;
   var yIncrement = (y2 - y1) / numberOfSegments;
@@ -74,12 +58,10 @@ function createPathLineNew(x1, y1, x2, y2, numberOfSegments, types, incomingPath
 
     paths.push(new Path(currentIndexInPathsArray, x1 + i * xIncrement, y1 + i * yIncrement, x1 + (i + 1) * xIncrement, y1 + (i + 1) * yIncrement, [...types], pathName));
     if (isFirstSegment === true) {
-      if (incomingPathName != null) {
-        pathTransitions.push(new PathTransition(findPathByName(incomingPathName), paths[currentIndexInPathsArray], []));
-        if (includeStart === true) {
-          paths[currentIndexInPathsArray].name += " Start";
-        }
-      }
+      if (incomingPathNames != null) 
+        pathTransitions.push(new PathTransition(findPathByNames(incomingPathNames), paths[currentIndexInPathsArray], []));
+      if (includeStart === true) paths[currentIndexInPathsArray].name += " Start";
+      
       isFirstSegment = false;
     }
     else {
@@ -96,16 +78,41 @@ function createPathLineNew(x1, y1, x2, y2, numberOfSegments, types, incomingPath
 function findPathByName(name) {
   var validPaths = paths.filter(e => e.name === name);
   if (validPaths.length === 1) return validPaths[0];
-  return false;
+  return null;
 }
 
+function findPathByNames(names) {
+  if(names.length != 2) return null;
+
+  var validPaths = paths.filter(
+    p => (p.name.startsWith(names[0]) && p.name.search(names[1])!=-1)
+      /*function(p) {
+        var isMatched = true;
+        if(p.name === null) return false;
+
+        
+        for (i = 0; i < names.length; i++)
+         if(p.name.search(names[i]) === -1){ isMatched = false;} 
+        
+        
+        return isMatched;
+      }*/
+    );
+  if (validPaths.length === 1) return validPaths[0];
+  return null;
+}
+
+function findPathTransitionByFromAndToPaths (fromPath, toPath) {
+  return pathTransitions.filter(p => p.fromPath === fromPath && p.toPath === toPath)[0];
+}
 
 function createPaths() {
   clearMap(); 
   var currentPathSetup = document.querySelector('input[name="radioParkingLotSetup"]:checked').value;
   switch (currentPathSetup) {
       case "Simple":
-        createPathsSimple(); break;
+        createPathsSimple();
+        runSimulation(); break;
       case "Today":
         createPathsToday(); break;
       case "All Left":
@@ -119,48 +126,75 @@ function createPaths() {
 
 function createPathsSimple() {
   var previousPath;
-  createPathLine(0, 70, 450, 70, 9, [], null, "E Start", "E Turn In Start");  // Across Portola
-  createPathLine(450, 70, 450, 185, 3, [], paths.length - 1, "E Enter", null);  // Into parking lot
-  createPathLine(450, 185, 450, 270, 3, [], paths.length - 1, "Exit First Parking Line", null);  // Into parking lot
-  //createPathLine(450, 270, 500, 320,  2, [], paths.length-1, null, "AngleIntoSecondParkingLine");  // Angle along curb
-  createPathLine(450, 270, 470, 290, 1, [], paths.length - 1, null, "Angle Into Second Parking Line");  // Angle along curb
-  createPathLine(470, 290, 580, 400, 4, [], paths.length - 1, null, "Enter Second Dropoff Lane");  // Angle along curb 1 
-  createPathLine(580, 400, 850, 400, 5, [], paths.length - 1, "Start Outer Dropoff Lane", "End Outer Dropoff Lane");  // Outer dropoff curb lane
-  createPathLine(580, 400, 620, 440, 2, [], null, "Fork Between Dropoff Lanes");  // Angle along curb 2
-  createPathLine(620, 440, 850, 440, 5, ["dropoff"], paths.length - 1, "Start Inner Dropoff Lane", "End Inner Dropoff Lane");  // Inner dropoff curb lane
-  createPathLine(850, 440, 850, 400, 2, [], paths.length - 1, null, null);  // Exit parking lot 1st leg
-  createPathLine(850, 400, 860, 320, 2, [], paths.length - 1, null, "Exit Outer Dropoff Lane");  // Exit parking lot 2nd leg
-  createPathLine(860, 320, 875, 170, 3, [], paths.length - 1, "Exit Second Parking Line", "Enter First Parking Line");  // Exit parking lot
-  createPathLine(875, 170, 885, 70, 2, [], paths.length - 1, null, "Exit");  // Exit parking lot
-  createPathLine(885, 70, 890, 20, 1, [], paths.length - 1, null, "Exit Cross Portola");  // Exit parking lot
-  createPathLine(890, 20, 440, 20, 9, [], paths.length - 1, "W After Exit", "W Turn In Start");  // West bound Portola
-  createPathLine(440, 20, -10, 20, 9, [], paths.length - 1, null, "W End");  // West bound Portola
-  createPathLine(450, 20, 450, 70, 1, [], null, null, "W Turn In Active");  // West bound Portola turn into parking lot
-  createPathLine(1190, 70, 890, 20, 6, [], null, "W Start", "W Before Exit");  // Enter west bound Portola
-  createPathLine(885, 80, 1185, 110, 6, [], null, "E After Exit", "E End");  // Exit east bound Portola
-  createPathLine(450, 70, 885, 80, 9, [], null, "E After Turn In", "E Before Exit");  // East bound Portola
-  createPathLine(470, 290, 860, 290, 7, [], null, "Start Second Parking Line", "End Second Parking Line");  // East bound Portola
-  createPathLine(875, 185, 450, 185, 7, [], null, "Start First Parking Line", "End First Parking Line");  // East bound Portola
+  // createPathLine(x1, y1, x2, y2, numberOfSegments, types, incomingPathName, pathLineName, startIndex, includeStart, includeEnd);
 
-  pathTransitions.push(new PathTransition(findPathByName("W Turn In Start"), findPathByName("W Turn In Active"), []));
-  pathTransitions.push(new PathTransition(findPathByName("W Before Exit"), findPathByName("W After Exit"), []));
-  pathTransitions.push(new PathTransition(findPathByName("W Turn In Active"), findPathByName("E Enter"), []));
-  pathTransitions.push(new PathTransition(findPathByName("E Before Exit"), findPathByName("E After Exit"), []));
-  pathTransitions.push(new PathTransition(findPathByName("E Turn In Start"), findPathByName("E After Turn In"), []));
-  pathTransitions.push(new PathTransition(findPathByName("Exit"), findPathByName("E After Exit"), []));
-  pathTransitions[pathTransitions.length - 1].dependentPaths.push({ "path": findPathByName("E Before Exit"), "priority": 1 });
-  pathTransitions.push(new PathTransition(findPathByName("Angle Into Second Parking Line"), findPathByName("Start Second Parking Line"), []));
-  pathTransitions.push(new PathTransition(findPathByName("End Second Parking Line"), findPathByName("Exit Second Parking Line"), []));
-  pathTransitions.push(new PathTransition(findPathByName("Enter First Parking Line"), findPathByName("Start First Parking Line"), []));
-  pathTransitions.push(new PathTransition(findPathByName("End First Parking Line"), findPathByName("Exit First Parking Line"), []));
-  pathTransitions.push(new PathTransition(findPathByName("Enter Second Droppoff Lane"), findPathByName("Start Outer Dropoff Lane"), []));
-  pathTransitions.push(new PathTransition(findPathByName("End Outer Dropoff Lane"), findPathByName("Exit Outer Dropoff Lane"), []));
-  pathTransitions.push(new PathTransition(findPathByName("Enter Second Dropoff Lane"), findPathByName("Fork Between Dropoff Lanes"), []));
-
-  var wEndPath = findPathByName("W End"); wEndPath.types.push("end");
-  var eEndPath = findPathByName("E End"); eEndPath.types.push("end");
+  createPathLine(   0,  70,  450,  70, 9, [],          null,                                      "E Begin",                        0, true, true)
+  createPathLine( 450,  70,  450, 185, 3, [],          ["E Begin",  "End"],                       "E Enter",                        0, true, true)
+  createPathLine( 450, 185,  450, 270, 3, [],          ["E Enter", "End"],                        "Exit First Parking Line",        0, true, true)
+  createPathLine( 450, 270,  470, 290, 1, [],          ["Exit First Parking Line", "End"],        "Angle Into Second Parking Line", 0, false, true)
+  createPathLine( 470, 290,  580, 400, 4, [],          ["Angle Into Second Parking Line", "End"], "Angle Into Inner Curb Lane",     0, true, true)
+  createPathLine( 580, 400,  850, 400, 5, [],          ["Angle Into Inner Curb Lane", "End"],     "Inner Curb Lane",                0, true, true);
+  createPathLine( 580, 400,  620, 440, 2, [],          ["Angle Into Inner Curb Lane", "End"],     "Angle Between Curb Lanes",       0, true, true);
+  createPathLine( 620, 440,  850, 440, 5, ["dropoff", "curb"], ["Angle Between Curb Lanes", "End"],       "Outer Curb Lane",                0, true, true);
+  createPathLine( 850, 440,  850, 400, 2, [],          ["Outer Curb Lane", "End"],                "First Exit Inner Lane",          0, true, true);
+  createPathLine( 850, 400,  860, 290, 3, [],          ["First Exit Inner Lane", "End"],          "Second Exit Inner Lane",         0, true, true);
+  createPathLine( 860, 290,  875, 185, 2, [],          ["Second Exit Inner Lane", "End"],         "Third Exit Inner Lane",          0, true, true);
+  createPathLine( 875, 185,  885,  80, 2, [],          ["Third Exit Inner Lane", "End"],          "Fourth Exit Inner Lane",         0, true, true);
+  createPathLine( 885,  80,  890,  20, 1, [],          ["Fourth Exit Inner Lane", "End"],         "Exit Cross Portola",             0, false, true);
+  createPathLine( 890,  20,  440,  20, 9, [],          ["Exit Cross Portola", "End"],             "Second Outer West Portola",      0, true, true);
+  createPathLine( 440,  20,  -10,  20, 9, [],          ["Second Outer West Portola", "End"],      "Third Outer West Portola",       0, true, true);
+  createPathLine( 450,  20,  450,  70, 1, [],          ["Second Outer West Portola", "End"],      "Outer Entrance",                 0, false, true);
+  createPathLine(1190,  70,  890,  20, 6, [],          null,                                      "W Begin",                        0, true, true);
+  createPathLine( 885,  80, 1185, 110, 6, [],          null,         "Right Exit",                     0, true, true);
+  createPathLine( 450,  70,  885,  80, 9, [],          ["E Begin", "End"],                        "Second Inner East Portola",      0, true, true);
+  createPathLine( 470, 290,  860, 290, 7, [],          ["Angle Into Second Parking Line", "End"], "2nd Parking Line",               0, true, true);
+  createPathLine( 875, 185,  450, 185, 7, [],          ["Third Exit Inner Lane" ,"End"],                        "1st Parking Line",               0, true, true);
 
 
+/*  for (var i = 0; i < 3; i++) { 
+    createPathLineBetweenPaths(findPathByNames(["Outer Curb Lane", i]), findPathByNames(["Inner Curb Lane", i+2]), 1, [], null, "From Inner to Outer Curb One" + i, 0, false, false)
+  } */
+
+
+  pathTransitions.push(new PathTransition(findPathByNames(["Second Outer West Portola", "End"]),      findPathByNames(["Outer Entrance", "End"]), 
+                  [{ "path": findPathByNames(["E Begin", "End"]),                     "priority": 1 },
+                   { "path": findPathByNames(["E Begin", "7"]),                       "priority": 2 },
+                   { "path": findPathByNames(["E Begin", "6"]),                       "priority": 3 },
+                   { "path": findPathByNames(["E Enter", "Start"]),                   "priority": 1 },
+                   { "path": findPathByNames(["E Enter", "1"]),                       "priority": 2 },
+                   { "path": findPathByNames(["Second Inner East Portola", "Start"]), "priority": 2 },
+                   { "path": findPathByNames(["Third Outer West Portola", "Start"]),  "priority": 3 } 
+                  ]));  
+  pathTransitions.push(new PathTransition(findPathByNames(["W Begin", "End"]),                        findPathByNames(["Second Outer West Portola", "Start"]), [])); 
+  pathTransitions.push(new PathTransition(findPathByNames(["Outer Entrance", "End"]),                 findPathByNames(["E Enter", "Start"]), 
+                  [{ "path": findPathByNames(["E Begin", "End"]),                     "priority": 1 },
+                   { "path": findPathByNames(["Second Inner East Portola", "Start"]), "priority": 1 },
+                   { "path": findPathByNames(["E Begin", "7"]),                       "priority": 2 },
+                   { "path": findPathByNames(["Second Inner East Portola", "1"]),     "priority": 3 }
+                  ]));
+  pathTransitions.push(new PathTransition(findPathByNames(["Second Inner East Portola", "End"]),      findPathByNames(["Right Exit", "Start"]), []));
+  pathTransitions.push(new PathTransition(findPathByNames(["Fourth Exit Inner Lane", "End"]),         findPathByNames(["Right Exit", "Start"]), 
+                  [{ "path": findPathByNames(["Second Inner East Portola", "End"]),   "priority": 1 },
+                   { "path": findPathByNames(["Second Inner East Portola", "7"]),     "priority": 2 },
+                   { "path": findPathByNames(["Second Inner East Portola", "6"]),     "priority": 3 },
+                   { "path": findPathByNames(["Right Exit", "1"]),                    "priority": 3 }]));
+
+
+  // findPathTransitionByFromAndToPaths(findPathByNames(["Fourth Exit Inner Lane", "End"]),findPathByNames(["Right Exit", "Start"])).dependentPaths.push({ "path": findPathByNames(["Second Inner East Portola", "End"]), "priority": 1 });
+  // pathTransitions[pathTransitions.length - 1].dependentPaths.push({ "path": findPathByNames(["Second Inner East Portola", "End"]), "priority": 1 });
+
+  pathTransitions.push(new PathTransition(findPathByNames(["Angle Into Second Parking Line", "End"]), findPathByNames(["2nd Parking Line", "Start"]), [])); 
+  pathTransitions.push(new PathTransition(findPathByNames(["2nd Parking Line", "End"]),               findPathByNames(["Third Exit Inner Lane", "Start"]), 
+                  [{ "path": findPathByNames(["Second Exit Inner Lane", "End"]),       "priority": 3 }]));
+  pathTransitions.push(new PathTransition(findPathByNames(["Third Exit Inner Lane", "End"]),          findPathByNames(["1st Parking Line", "Start"]), []));
+  pathTransitions.push(new PathTransition(findPathByNames(["1st Parking Line", "End"]),               findPathByNames(["Exit First Parking Line", "Start"]), []));
+  pathTransitions.push(new PathTransition(findPathByNames(["Angle Into Inner Curb Lane", "End"]),     findPathByNames(["Inner Curb Lane", "Start"]), []));
+  pathTransitions.push(new PathTransition(findPathByNames(["Inner Curb Lane", "End"]),                findPathByNames(["Second Exit Inner Lane", "Start"]), []));
+  
+  var wEndPath = findPathByNames(["Third Outer West Portola", "End"]); wEndPath.types.push("end");
+  var eEndPath = findPathByNames(["Right Exit", "End"]); eEndPath.types.push("end");
+
+  pathTransitions.forEach(p => p.addImplicitPathTransitions());
   paths.forEach(function (elem) { elem.draw(); });
 }
 

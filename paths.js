@@ -183,7 +183,7 @@ var Path = function (id, x1, y1, x2, y2, types, name) {
   });
   */
 
-  this.arrow.on('mouseenter', function () {
+  this.arrowLabelGroup.on('mouseenter', function () {
     if (selectedPath != null) {
       // Am I a next path option?
       // Method 1: Check color (am I green)
@@ -204,7 +204,7 @@ var Path = function (id, x1, y1, x2, y2, types, name) {
     }
   });
 
-  this.arrow.on('mouseleave', function () {
+  this.arrowLabelGroup.on('mouseleave', function () {
     if (selectedPath != null) {
       // Am I a next path option?
       // Method 1: Check color (am I green)
@@ -280,11 +280,12 @@ var Path = function (id, x1, y1, x2, y2, types, name) {
   };
 
 
+
   this.getOpenPathTransitions = function (priority) {
     var openTransitions = [];
 
     pathTransitions.forEach(function (e) {
-      if (e.fromPath === thisPath && e.isAvailable()) openTransitions.push(e);
+      if (e.fromPath === thisPath && e.isAvailable(priority)) openTransitions.push(e);
     });
 
     return openTransitions;
@@ -298,6 +299,12 @@ var Path = function (id, x1, y1, x2, y2, types, name) {
     });
 
     return transitions;
+  }
+
+  this.getNextPathOptions = function () {
+    var returnPaths = [];
+    this.getPathTransitions().forEach(p => returnPaths.push(p.toPath));
+    return returnPaths;
   }
 
 
