@@ -150,10 +150,10 @@ function createPathsSimple() {
   createPathLine( 470, 290,  860, 290, 7, [],          ["Angle Into Second Parking Line", "End"], "2nd Parking Line",               0, true, true);
   createPathLine( 875, 185,  450, 185, 7, [],          ["Third Exit Inner Lane" ,"End"],                        "1st Parking Line",               0, true, true);
 
-
-/*  for (var i = 0; i < 3; i++) { 
+/*
+  for (var i = 0; i < 3; i++) { 
     createPathLineBetweenPaths(findPathByNames(["Outer Curb Lane", i]), findPathByNames(["Inner Curb Lane", i+2]), 1, [], null, "From Inner to Outer Curb One" + i, 0, false, false)
-  } */
+  }*/ 
 
 
   pathTransitions.push(new PathTransition(findPathByNames(["Second Outer West Portola", "End"]),      findPathByNames(["Outer Entrance", "End"]), 
