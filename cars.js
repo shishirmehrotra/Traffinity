@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // CAR
 
+
 var carColors = [
   "#FF0000",
   "#FF1100",
@@ -34,7 +35,7 @@ var carColors = [
   "#00FF00"]
 
 
-var Car = function (id) {
+var Car = function (id, passengerCountInitial, type) {
 
 // Define properties of cars
   this.currentPath = null;
@@ -47,10 +48,13 @@ var Car = function (id) {
   this.currentRotation = 0;
   this.ticksSinceStartDropoff = 0;
   this.isDroppingOff = false;
-  this.passengerCount = 2;
+  this.passengerCount = passengerCountInitial;
   this.displayString = "";
   this.colorIndex = 0;
   this.showLabel = false;
+  this.type = type;
+  this.ticksTotal = 0;
+  this.ticksWhenDropoffDone = 0;
   var thisCar = this;
 
 // Define Car shapes
@@ -65,10 +69,11 @@ var Car = function (id) {
     x: 0,
     y: 15,
     text: this.displayString,
-    fontSize: 7,
+    fontSize: 8,
     lineHeight: 1.4,
     //fontFamily: 'Roboto',
     fontFamily: 'Yanone+Kaffeesatz',
+    fontStyle: 'bold',
     fill: 'black',
     //scaleY: scaleY      
   });
@@ -78,11 +83,14 @@ var Car = function (id) {
   this.setDisplayString = function () {
     this.displayString = "Car ";
     this.displayString += id; 
-    this.displayString += "\nTicks " + this.ticksSinceLastMove 
-    this.displayString += " [" + this.ticksSinceLastMoveHistory + "]"; 
+    //this.displayString += "\nTicks " + this.ticksSinceLastMove 
+    //this.displayString += " [" + this.ticksSinceLastMoveHistory + "]"; 
     this.getCarColor();
     //this.displayString += "\nColor " + this.colorIndex;
     //this.displayString += "\nPassengers " + this.passengerCount;
+    
+    this.displayString += "\nTotal Ticks " + this.ticksTotal;
+    this.displayString += "\nTicks when dropoff done " + this.ticksWhenDropoffDone;
     if(this.isDroppingOff) 
       this.displayString += "\nTicks since start dropoff " + this.ticksSinceStartDropoff;
     
@@ -192,6 +200,13 @@ var Car = function (id) {
         });
   this.group.add(this.passengerTwo);
 
+  if(this.passengerCount === 0) {
+      this.passengerOne.hide();
+      this.passengerTwo.hide();
+  }
+  if(this.passengerCount === 1) {
+      this.passengerOne.hide();
+  }
   this.driver = new Konva.Rect({
           x: 10,
           y: 1.5,
@@ -269,6 +284,8 @@ var Car = function (id) {
   }
 
   this.getCarColor = function() {
+    if(this.type==="extraParked" || this.type === "extraDriving") return "#AAAAAA";
+    
     this.colorIndex = Math.round(Math.max(carColors.length - 1 - Math.max(average(this.ticksSinceLastMoveHistory), this.ticksSinceLastMove)*2, 0));
     /*if(this.colorIndex < 27) {
       console.log("car " + this.id 
@@ -284,6 +301,8 @@ var Car = function (id) {
 
     if (this.currentPath != null) { this.currentPath.clearCurrentCar(); } 
     this.currentPath = null;
+    if(this.type!="extraParked" && this.type != "extraDriving") resultsTracker.logDone(this.ticksTotal - 
+  this.ticksWhenDropoffDone);
   }
 
   this.setPath = function (path) {
@@ -320,6 +339,9 @@ var Car = function (id) {
       this.carDoor.hide();
       this.passengerOne.hide();
       this.passengerTwo.hide();
+      
+      this.ticksWhenDropoffDone = this.ticksTotal;
+      resultsTracker.logDrop(this.ticksTotal);
     }
 
   // Next Step Execution
@@ -329,44 +351,51 @@ var Car = function (id) {
     var beforePath = this.currentPath;
     var moved = false;
 
-    // Am I on a path?
-    if (this.currentPath != null) {
-      // Drop off: If I'm still dropping off, then don't move
-      if(this.isDroppingOff === false || (this.isDroppingOff === true && this.checkIsDoneDroppingOff() )) {
+    // Am I an extra parked car?
+    if (this.type != "extraParked") {
 
-        // If I haven't waited long enough for what the averageSpeed slider says, then I don't move either  
-        if (this.ticksSinceLastMove*4 >= -this.targetAverageSpeed+99) {
+      // Am I on a path?
+      if (this.currentPath != null) {
+        // Drop off: If I'm still dropping off, then don't move
+        if(this.isDroppingOff === false || (this.isDroppingOff === true && this.checkIsDoneDroppingOff() )) {
 
-          // whew, all the checks are done. Now I can move! Now where to?
-          var targetPathToMoveTo = this.selectFromNextPathOptions();
-          if (targetPathToMoveTo != beforePath && targetPathToMoveTo != null) {
-            if(targetPathToMoveTo === false) {
-              console.log("error: targetPathToMoveTo is false");
-            }
-            this.setPath(targetPathToMoveTo);
-            this.draw();
-            moved = true;
-          }
+          // If I haven't waited long enough for what the averageSpeed slider says, then I don't move either  
+          if (this.ticksSinceLastMove*4 >= -this.targetAverageSpeed+99) {
 
-          // Now that I have moved, let's check if we need to initiate another state: Dropoff, Pickup, or End
-          if (this.currentPath != null) {
-            if (this.currentPath.types.length > 0) {
-              if (this.currentPath.types.includes("dropoff") && this.passengerCount>0) { 
-                if(this.shouldIcurbDropOffHere()) this.startDropoff();
+            // whew, all the checks are done. Now I can move! Now where to?
+            var targetPathToMoveTo = this.selectFromNextPathOptions();
+            if (targetPathToMoveTo != beforePath && targetPathToMoveTo != null) {
+              if(targetPathToMoveTo === false) {
+                console.log("error: targetPathToMoveTo is false");
               }
-              if (this.currentPath.types.includes("end")) this.setDone()
+              this.setPath(targetPathToMoveTo);
+              this.draw();
+              moved = true;
             }
-          } 
-        }       
+
+            // Now that I have moved, let's check if we need to initiate another state: Dropoff, Pickup, or End
+            if (this.currentPath != null) {
+              if (this.currentPath.types.length > 0) {
+                if (this.currentPath.types.includes("dropoff") && this.currentPath.types.includes("curb") && this.passengerCount>0) { 
+                  if(this.shouldIcurbDropOffHere()) this.startDropoff();
+                }
+                if (this.currentPath.types.includes("dropoff") && this.currentPath.types.includes("spotEnter") && this.passengerCount>0) { 
+                  this.startDropoff();
+                }
+                if (this.currentPath.types.includes("end")) this.setDone()
+              }
+            } 
+          }       
+        }
       }
     }
-
 
     if(moved) { this.ticksSinceLastMove = 0;}
     else      { this.ticksSinceLastMove++;  };
 
     this.ticksSinceLastMoveHistory.push(this.ticksSinceLastMove);
     this.ticksSinceLastMoveHistory = this.ticksSinceLastMoveHistory.slice(-5);
+    this.ticksTotal++;
 
     this.setDisplayString();
     this.draw();
@@ -411,10 +440,17 @@ var Car = function (id) {
       //      Factors: Is the pull forward slider high? Should I go all the way down the line?
 
       // 2.5: I'm at the first parking lot line. Should I turn in?
-      //      Factors: Am I done dropping off? Do I want to park? 
+      //      Factors: Am I done dropping off? Do I want to park? Does the parking lot look full?
       if (this.currentPath === findPathByNames(["Third Exit Inner Lane", "End"])) {
-        if (this.passengerCount > 0) return this.canIGoToPathName("1st Parking Line", validPathTransitions);
-        else                         return this.canIGoToPathName("Fourth Exit Inner Lane", validPathTransitions);
+        var spotDropOffPathsInThisLine = paths.filter(p => p.types.includes("spotEnter") && p.types.includes("dropoff") && p.name.includes("1st Parking Line") && !p.isOccupiedByExtraParkedCar());
+
+        var openSpotDropOffPathsInThisLine = spotDropOffPathsInThisLine.filter(p => p.currentCar === null);
+
+        if (this.passengerCount === 0 
+            || openSpotDropOffPathsInThisLine.length / spotDropOffPathsInThisLine.length < .1)            
+          return this.canIGoToPathName("Fourth Exit Inner Lane", validPathTransitions);
+        else
+          return this.canIGoToPathName("1st Parking Line", validPathTransitions);
       }
 
 
@@ -422,7 +458,7 @@ var Car = function (id) {
       //      Factors: Am I still dropping off? If so, go left. Else, choose based on the direction ratio slider.
       if (this.currentPath === findPathByNames(["Fourth Exit Inner Lane", "End"])) {
         var directionRatioSlider = document.getElementById("sliderDirectionRatio").value;
-        if (getRandomInt(100) > directionRatioSlider ) return this.canIGoToPathName("Right Exit", validPathTransitions);
+        if (getRandomInt(100) < directionRatioSlider ) return this.canIGoToPathName("Right Exit", validPathTransitions);
         else                                           return this.canIGoToPathName("Exit Cross Portola", validPathTransitions);
       }
 
@@ -433,8 +469,24 @@ var Car = function (id) {
         else                         return this.canIGoToPathName("Third Outer West Portola", validPathTransitions);
       }
       
+      // 2.8: I can turn into a parking spot, should I?
+      //      Factors: Am I trying to dropoff?
+      var validSpotTransitions    = validPathTransitions.filter(pt => pt.toPath.types.includes("spotEnter") && pt.toPath.types.includes("dropoff")); 
 
-    // Check 3: I guess I'm not at a special decision point, so let's just pick randomly?
+      if (validSpotTransitions.length > 0) {
+
+        if(this.passengerCount > 0) {
+          for(var i = 0; i < validSpotTransitions.length; i++) 
+            if(this.shouldIspotDropOffHere(validSpotTransitions[i].toPath))
+              return this.canIGoToPathName(validSpotTransitions[i].toPath.name, validPathTransitions);
+        }
+
+        var validNonSpotTransitions = validPathTransitions.filter(pt => !(pt.toPath.types.includes("spotEnter") && pt.toPath.types.includes("dropoff")));
+        if(validNonSpotTransitions.length > 0) return this.canIGoToPathName(validNonSpotTransitions[0].toPath.name, validPathTransitions);
+        else return null;
+      }
+
+      // Check 3: I guess I'm not at a special decision point, so let's just pick randomly?
       var random = getRandomInt(validPathTransitions.length);
       return validPathTransitions[random].toPath;
 
@@ -448,6 +500,33 @@ var Car = function (id) {
     if(selectPathTransition != null) return selectPathTransition.toPath;
     else return null;
   }
+
+  this.shouldIspotDropOffHere = function(path) {
+    var pullForwardSlider = document.getElementById("sliderPullForward").value;
+
+    // Which line am I in?
+    var myPathLineName = path.name.substring(0, path.name.indexOf("Spot"));
+    
+    // How many open parking spots are there in this line?
+    var spotDropOffPathsInThisLine = paths.filter(p => p.types.includes("spotEnter") && p.types.includes("dropoff") && p.name.includes(myPathLineName) && !p.isOccupiedByExtraParkedCar());
+    var tolerateSpacesInFrontOfMe = spotDropOffPathsInThisLine.length * 2 * (1 - pullForwardSlider / 100) + 3;
+
+    // Where am I in that line?
+    var myPositionInSpotDropOffLine = spotDropOffPathsInThisLine.indexOf(path);
+
+    // How many open parking spots are in front of me?
+    var positionOfNextCar = spotDropOffPathsInThisLine.length;
+    for (var i = myPositionInSpotDropOffLine+1; i < spotDropOffPathsInThisLine.length; i++) {
+      if(spotDropOffPathsInThisLine[i].currentCar != null && spotDropOffPathsInThisLine[i].currentCar.isDroppingOff) positionOfNextCar = i;
+      break;
+    }
+
+    var delta = Math.min(positionOfNextCar-myPositionInSpotDropOffLine, spotDropOffPathsInThisLine.length-myPositionInSpotDropOffLine);
+
+    if(delta <= tolerateSpacesInFrontOfMe) return true;
+    else                                   return false;
+  }
+
 
   this.shouldIcurbDropOffHere = function() {
     var pullForwardSlider = document.getElementById("sliderPullForward").value;
@@ -474,7 +553,7 @@ var Car = function (id) {
     var delta = Math.min(positionOfNextCar-myPositionInCurbDropOffPaths, curbDropOffPaths.length-myPositionInCurbDropOffPaths);
 
     if(delta <= tolerateSpacesInFrontOfMe) return true;
-    else                              return false;
+    else                                   return false;
   }
 
 };

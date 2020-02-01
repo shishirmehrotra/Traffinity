@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////////////
+           //////////////////////////////////////////////////////////////////////////////////////////
 // 
 // SETUP FUNCTIONS
 //
@@ -75,6 +75,78 @@ function createPathLine(x1, y1, x2, y2, numberOfSegments, types, incomingPathNam
   return paths[currentIndexInPathsArray - 1].name;
 }
 
+function createParkingSpot (x, y, angle, incomingPathName,outgoingPathName, parkingSpotName) {
+  var parkingSpotSpacer = 20;
+  var parkingSpotLength = 30;
+  var x1 = x  + parkingSpotSpacer * Math.cos(angle);
+  var y1 = y  + parkingSpotSpacer * Math.sin(angle);
+  var x2 = x1 + parkingSpotLength * Math.cos(angle);
+  var y2 = y1 + parkingSpotLength * Math.sin(angle);
+
+  paths.push(new Path(paths.length, x1, y1, x2, y2, ["spotEnter", "dropoff"], parkingSpotName + " Enter" ));
+  paths.push(new Path(paths.length, x2, y2, x1, y1, ["spotExit"], parkingSpotName + " Exit"));
+
+  pathTransitions.push(new PathTransition(findPathByName(incomingPathName), paths[paths.length-2], []));
+  pathTransitions.push(new PathTransition(paths[paths.length-2], paths[paths.length-1], []));
+  pathTransitions.push(new PathTransition(paths[paths.length-1], findPathByName(outgoingPathName), []));
+}
+
+function createParkingLine (x1, y1, x2, y2, numberOfSegments, types, incomingPathNames, pathLineName, startIndex, includeStart, includeEnd, angle1, angle2, startIgnore1, startIgnore2, endIgnore1, endIgnore2) {
+
+  var xIncrement = (x2 - x1) / numberOfSegments;
+  var yIncrement = (y2 - y1) / numberOfSegments;
+  var currentIndexInPathsArray = paths.length;
+  var isFirstSegment = true;
+  var indexInPathLine = startIndex;
+
+  var beforeSpotPath = findPathByNames(incomingPathNames);
+  var afterSpotPath;
+
+  for (var i = 0; i < numberOfSegments; i++) {
+    var pathName = pathLineName + " " + indexInPathLine;
+    var spotName1 = pathLineName + " Spot " + indexInPathLine + " (a)";
+    var spotName2 = pathLineName + " Spot " + indexInPathLine + " (b)";
+
+    paths.push(new Path(currentIndexInPathsArray, x1 + i * xIncrement, y1 + i * yIncrement, x1 + (i + 1) * xIncrement, y1 + (i + 1) * yIncrement, [...types], pathName));
+    afterSpotPath = paths[paths.length-1];
+
+    if (isFirstSegment === true) {
+      if (incomingPathNames != null) 
+        pathTransitions.push(new PathTransition(findPathByNames(incomingPathNames), paths[currentIndexInPathsArray], []));
+      if (includeStart === true) paths[currentIndexInPathsArray].name += " Start";
+      
+      isFirstSegment = false;
+    }
+    else {
+      //pathTransitions.push(new PathTransition(paths[currentIndexInPathsArray - 1], paths[currentIndexInPathsArray], []));
+      pathTransitions.push(new PathTransition(beforeSpotPath, afterSpotPath, []));
+      //createParkingSpot(x1 + (i) * xIncrement, y1 + (i) * yIncrement, angle, paths[currentIndexInPathsArray-3].name, paths[currentIndexInPathsArray].name, spotName);
+      if (startIgnore1 > 0) {startIgnore1--;}
+      else {
+        if (i < numberOfSegments - endIgnore1) {
+         if(angle1 != null) createParkingSpot(x1 + i*xIncrement, y1 + i * yIncrement, angle1, beforeSpotPath.name, afterSpotPath.name, spotName1);
+        }
+      }
+
+      if (startIgnore2 > 0) {startIgnore2--;}
+      else {
+        if (i < numberOfSegments - endIgnore2) {
+          if(angle2 != null) createParkingSpot(x1 + i*xIncrement, y1 + i * yIncrement, angle2, beforeSpotPath.name, afterSpotPath.name, spotName2);
+        }
+      }
+    }
+
+    beforeSpotPath = afterSpotPath;
+    currentIndexInPathsArray = paths.length;
+    indexInPathLine++;  
+  }
+  if (includeEnd === true) afterSpotPath.name += " End";
+    //paths[paths.length-1].name += " End";
+
+  //return paths[paths.length-1].name;
+  return afterSpotPath.name;
+}
+
 function findPathByName(name) {
   var validPaths = paths.filter(e => e.name === name);
   if (validPaths.length === 1) return validPaths[0];
@@ -114,13 +186,17 @@ function createPaths() {
         createPathsSimple();
         runSimulation(); break;
       case "Today":
-        createPathsToday(); break;
+        createPathsToday(); 
+        runSimulation(); break;
       case "All Left":
-        createPathsAllLeft(); break;
+        createPathsAllLeft(); 
+        runSimulation(); break;
       case "Exit Right":
-        createPathsExitRight(); break;
+        createPathsExitRight(); 
+        runSimulation(); break;
       default:
-        createPathsSimple(); break;
+        createPathsSimple(); 
+        runSimulation(); break;
     }
 }
 
@@ -133,7 +209,9 @@ function createPathsSimple() {
   createPathLine( 450, 185,  450, 270, 3, [],          ["E Enter", "End"],                        "Exit First Parking Line",        0, true, true)
   createPathLine( 450, 270,  470, 290, 1, [],          ["Exit First Parking Line", "End"],        "Angle Into Second Parking Line", 0, false, true)
   createPathLine( 470, 290,  580, 400, 4, [],          ["Angle Into Second Parking Line", "End"], "Angle Into Inner Curb Lane",     0, true, true)
-  createPathLine( 580, 400,  850, 400, 5, [],          ["Angle Into Inner Curb Lane", "End"],     "Inner Curb Lane",                0, true, true);
+  
+  createParkingLine( 580, 400,  850, 400, 15, [],          ["Angle Into Inner Curb Lane", "End"],     "Inner Curb Lane",                0, true, true, -1.5*Math.PI/4, null, 3, null, 1, null);
+  //createPathLine( 580, 400,  850, 400, 5, [],          ["Angle Into Inner Curb Lane", "End"],     "Inner Curb Lane",                0, true, true);
   createPathLine( 580, 400,  620, 440, 2, [],          ["Angle Into Inner Curb Lane", "End"],     "Angle Between Curb Lanes",       0, true, true);
   createPathLine( 620, 440,  850, 440, 5, ["dropoff", "curb"], ["Angle Between Curb Lanes", "End"],       "Outer Curb Lane",                0, true, true);
   createPathLine( 850, 440,  850, 400, 2, [],          ["Outer Curb Lane", "End"],                "First Exit Inner Lane",          0, true, true);
@@ -145,11 +223,17 @@ function createPathsSimple() {
   createPathLine( 440,  20,  -10,  20, 9, [],          ["Second Outer West Portola", "End"],      "Third Outer West Portola",       0, true, true);
   createPathLine( 450,  20,  450,  70, 1, [],          ["Second Outer West Portola", "End"],      "Outer Entrance",                 0, false, true);
   createPathLine(1190,  70,  890,  20, 6, [],          null,                                      "W Begin",                        0, true, true);
-  createPathLine( 885,  80, 1185, 110, 6, [],          null,         "Right Exit",                     0, true, true);
+  createPathLine( 885,  80, 1185, 110, 7, [],          null,                                      "Right Exit",                     0, true, true);
   createPathLine( 450,  70,  885,  80, 9, [],          ["E Begin", "End"],                        "Second Inner East Portola",      0, true, true);
-  createPathLine( 470, 290,  860, 290, 7, [],          ["Angle Into Second Parking Line", "End"], "2nd Parking Line",               0, true, true);
-  createPathLine( 875, 185,  450, 185, 7, [],          ["Third Exit Inner Lane" ,"End"],                        "1st Parking Line",               0, true, true);
 
+  createParkingLine( 470, 290,  860, 290, 21, [],       ["Angle Into Second Parking Line", "End"], "2nd Parking Line",               0, true, true, 1.5*Math.PI/4, -1.5*Math.PI/4, 6, 1, 1, 2);
+  //createPathLine( 470, 290,  860, 290, 7, [],          ["Angle Into Second Parking Line", "End"], "2nd Parking Line",               0, true, true);
+
+  createParkingLine(885, 185,  450, 185, 21, [],          ["Third Exit Inner Lane", "End"],        "1st Parking Line",               0, true, true, -2.5*Math.PI/4, 2.5*Math.PI/4, 0, 1, 2, 3)
+  //createPathLine( 875, 185,  450, 185, 7, [],          ["Third Exit Inner Lane", "End"],        "1st Parking Line",               0, true, true);
+  createPathLine( 850, 440,  885, 400, 2, [],          ["Outer Curb Lane", "End"],                "First Exit Outer Lane",          0, true, true);
+  createPathLine( 885, 400,  905, 185, 6, ["dropoff", "curb"],          ["First Exit Outer Lane", "End"],          "Second Exit Outer Lane",         0, true, true);
+  createPathLine( 905, 185, 925, 85, 3, [],          ["Second Exit Outer Lane", "End"],          "Third Exit Outer Lane",         0, true, true);
 /*
   for (var i = 0; i < 3; i++) { 
     createPathLineBetweenPaths(findPathByNames(["Outer Curb Lane", i]), findPathByNames(["Inner Curb Lane", i+2]), 1, [], null, "From Inner to Outer Curb One" + i, 0, false, false)
@@ -178,6 +262,19 @@ function createPathsSimple() {
                    { "path": findPathByNames(["Second Inner East Portola", "7"]),     "priority": 2 },
                    { "path": findPathByNames(["Second Inner East Portola", "6"]),     "priority": 3 },
                    { "path": findPathByNames(["Right Exit", "1"]),                    "priority": 3 }]));
+    pathTransitions.push(new PathTransition(findPathByNames(["Fourth Exit Inner Lane", "End"]),         findPathByNames(["Exit Cross Portola", "End"]), 
+                  [{ "path": findPathByNames(["Second Inner East Portola", "End"]),   "priority": 1 },
+                   { "path": findPathByNames(["Second Inner East Portola", "7"]),     "priority": 2 },
+                   { "path": findPathByNames(["Second Inner East Portola", "6"]),     "priority": 3 },
+                   { "path": findPathByNames(["Right Exit", "1"]),                    "priority": 3 },
+                   { "path": findPathByNames(["W Begin", "End"]),                     "priority": 1 },
+                   { "path": findPathByNames(["W Begin", "4"]),                       "priority": 2 },
+                   { "path": findPathByNames(["W Begin", "3"]),                       "priority": 3 }
+                   ]));
+  pathTransitions.push(new PathTransition(findPathByNames(["Third Exit Outer Lane", "End"]),         findPathByNames(["Right Exit", "1"]), 
+                  [{ "path": findPathByNames(["Right Exit", "Start"]),   "priority": 1 },
+                   { "path": findPathByNames(["Second Inner East Portola", "End"]),     "priority": 2 },
+                   { "path": findPathByNames(["Second Inner East Portola", "7"]),     "priority": 3 },]));
 
 
   // findPathTransitionByFromAndToPaths(findPathByNames(["Fourth Exit Inner Lane", "End"]),findPathByNames(["Right Exit", "Start"])).dependentPaths.push({ "path": findPathByNames(["Second Inner East Portola", "End"]), "priority": 1 });
@@ -199,18 +296,15 @@ function createPathsSimple() {
 }
 
 function createPathsToday() {
-  
-
+  createPathsSimple();
 }
 
 function createPathsAllLeft() {
-  
-
+  createPathsSimple();
 }
 
 function createPathsExitRight() {
-  
-
+  createPathsSimple();
 }
 
 function createPathTransitions() {

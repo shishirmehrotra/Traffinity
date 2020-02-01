@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html>
 
 <head>
@@ -39,10 +39,13 @@
           <h3>Car Setup</h3> <p>
           <input class="slider" id="sliderAmountOfCars" type="range" min="0" max="100" value="75" onInput="carGenerator.setAmountOfCars()"> Amount of Cars <br>
           <input class="slider" id="sliderDirectionRatio" type="range" min="0" max="99" onInput="carGenerator.setRatio()"> Direction Ratio<br>
-          <input class="slider" id="sliderAverageSpeed" type="range" min="0" max="99" value ="75" onInput="setAverageSpeed()"> Average Speed<br>
+          <input class="slider" id="sliderAverageSpeed" type="range" min="0" max="99" value ="100" onInput="setAverageSpeed()"> Average Speed<br>
+          <input class="slider" id="sliderExtraCars" type="range" min="0" max="99" value="5"> Extra Cars<br>
+          <input class="slider" id="sliderExtraParkedCars" type="range" min="0" max="99" value="50" onInput="carGenerator.generateExtraParkedCars()"> Extra Parked Cars<br>
+
           <h3>Location Preference</h3><p>
-          <input class="slider" id="sliderCurbPreferred" type="range" min="0" max="100" value="50"> Curb Preferred<br>
-          <input class="slider" id="sliderParkingSpotPreferred" type="range" min="0" max="100" value = "50"> Parking Spot Preferred<br>
+          <input class="slider" id="sliderCurbPreferred" type="range" min="0" max="100" value="50" onInput="setSliderCurbPreferred()"> Curb Preferred<br>
+          <input class="slider" id="sliderParkingSpotPreferred" type="range" min="0" max="100" value = "50" onInput="setSliderParkingSpotPreferred()"> Parking Spot Preferred<br>
           <input class="slider" id="sliderStreetPreferred" type="range" min="0" max="100" value="0"> Street Preferred<br>
           <h3>Politeness</h3><p>
           <input class="slider" id="sliderCarSpacing" type="range" min="0" max="99" value="20"> Car Spacing <br>
@@ -57,7 +60,7 @@
         <h2>Parking Lot Setup </h2>
         <div id="parkingLotSetup">
 
-          <div class="radio-toolbar">
+          <div class="radio-toolbar parkingLotToolbar">
             <input type="radio" id="Simple" name="radioParkingLotSetup" value="Simple" onClick="createPaths()" checked>
             <label for="Simple">Simple</label><br>  
       
@@ -70,9 +73,29 @@
             <input type="radio" id="Exit Right" name="radioParkingLotSetup" value="Exit Right" onClick="createPaths()">
             <label for="Exit Right">Exit Right</label> 
 
+            <input type="radio" id="Exit Right" name="radioParkingLotSetup" value="Expand Dropoff" onClick="createPaths()">
+            <label for="Expand Dropoff">Expand Dropoff</label> 
             <!--<input type="radio" id="Add New" name="radioParkingLotSetup" value="Add New" onClick="createPaths()">
             <label for="Add New">Add New</label><br> -->
-            </div>
+          </div>
+          <div class="radio-toolbar parkingSetupToolbar">
+            <input type="radio" id="Less Reserved Spots" name="radioParkingLotSetupSecond" value="Less Reserved Spots" onClick="setExtraParkedCars(25)" >
+            <label for="Less Reserved Spots">Less Reserved</label><br>  
+      
+            <input type="radio" id="Remote Lot" name="radioParkingLotSetupSecond" value="Remote Lot" onClick="setAmountOfCars(25)">
+            <label for="Remote Lot">Remote Lot</label>
+
+            <input type="radio" id="School Bus" name="radioParkingLotSetupSecond" value="School Bus" onClick="setAmountOfCars(25)">
+            <label for="School Bus">School Bus</label>
+
+            <input type="radio" id="Stagger Times" name="radioParkingLotSetupSecond" value="Stagger Times" onClick="setAmountOfCars(25)">
+            <label for="Stagger Times">Stagger Times</label> 
+
+            <input type="radio" id="Active Curb" name="radioParkingLotSetupSecond" value="Active Curb" onClick="setDropoffDuration(10)">
+            <label for="Active Curb">Active Curb</label> 
+            <!--<input type="radio" id="Add New" name="radioParkingLotSetup" value="Add New" onClick="createPaths()">
+            <label for="Add New">Add New</label><br> -->
+          </div>
             <div id="togglePathCheckBoxes">
               <p>
               <input type="checkbox" id="checkboxShowPathLines" onclick="showPathLines();" checked> Show Path Lines
@@ -86,7 +109,7 @@
       <div id="simulationPanel" class="panel">
         <h2>Run Simulation </h2>
         <div id="simulationSetup">
-          <button id="buttonBackward" name="runSymptoms" value="Backward" onClick="createPaths()">
+          <button id="buttonBackward" name="runSymptoms" value="Backward" onClick="resetSimulation()">
             <img src="Buttons/GoBackOne.png"/>
           </button>
 
@@ -102,7 +125,7 @@
           </button>
         </div>  
         <div id="timeWarpSliderPanel"><p>  
-          <input class="slider" id="sliderTimeWarp" type="range" min="0" max="100" value="50" onInput="runSimulation()"> Time Warp<br> 
+          <input class="slider" id="sliderTimeWarp" type="range" min="0" max="100" value="70" onInput="runSimulation()"> Time Warp<br> 
         </div>
       </div>
 
@@ -114,25 +137,25 @@
               <th></th> 
               <th>Count</th>
               <th>Phase</th>
-              <th>Average</th>
               <th>Median</th>
+              <th>Average</th>
               <th>Max</th>  
             </tr>
             <tr>
-              <td>Kids</td>
-              <td>50</td>
+              <td>Cars</td>
+              <td id="resultsCountCars">0</td>
               <td>Pre-phase  <span class="subtext">from arrival to dropoff/pickup</span></td>
-              <td>5'</td>
-              <td>3'</td>
-              <td>10'</td>
+              <td id="resultsPreMedian">0</td>
+              <td id="resultsPreAverage">0</td>
+              <td id="resultsPreMax">0</td>
             </tr>
             <tr>
-              <td>Cars</td>
-              <td>45</td>
+              <td>Kids</td>
+              <td id="resultsCountKids">0</td>
               <td>Post-phase  <span class= "subtext">from dropoff/pickup to depart</span></td>
-              <td>6'</td>
-              <td>4'</td>
-              <td>11'</td>
+              <td id="resultsPostMedian">0</td>
+              <td id="resultsPostAverage">0</td>
+              <td id="resultsPostMax">0</td>
             </tr>
           </table>
           <p>
@@ -191,7 +214,8 @@
   <script src="paths.js"></script>
   <script src="pathTransitions.js"></script>
   <script src="carGenerator.js"></script>
-  <script src="globals.js"></script>
+  <script src="resultsTracker.js"></script>
+
   <script src="tables.js"></script>
   <script src="helper.js"></script>
   <script src="debugFunctions.js"></script>

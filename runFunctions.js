@@ -16,6 +16,25 @@ function handleConfigureClick(myRadio) {
   }
 }
 
+function setSliderCurbPreferred() {
+  var sliderCurbPreferredValue = document.getElementById("sliderCurbPreferred").value;
+  document.getElementById("sliderParkingSpotPreferred").value = 100 - sliderCurbPreferredValue;
+}
+function setSliderParkingSpotPreferred() {
+  var sliderParkingSpotPreferredValue = document.getElementById("sliderParkingSpotPreferred").value;
+  document.getElementById("sliderCurbPreferred").value = 100 - sliderParkingSpotPreferredValue;
+}
+
+function setExtraParkedCars(value) {var e = document.getElementById("sliderExtraParkedCars"); e.value = value; fireOnChangeForElement(e);}
+function setAmountOfCars(value)    {var e = document.getElementById("sliderAmountOfCars");    e.value = value; fireOnChangeForElement(e);}
+function setDropoffDuration(value) {var e = document.getElementById("sliderTaskTime");        e.value = value; fireOnChangeForElement(e);}
+
+function fireOnChangeForElement(e) {
+  var event = new Event('input', { bubbles: true });
+  e.dispatchEvent(event); 
+  //e.fireEvent("oninput");
+}
+
 
 var setAverageSpeed = function() {
   carFleet.forEach(e => e.setAverageSpeed());
@@ -47,6 +66,9 @@ function runSimulation() {
 
   console.log("time scale: " + timeScale);
 
+  carGenerator.generateExtraParkedCars();
+
+
   window.clearInterval(timer);
   timer = window.setInterval(nextStep, timeScale);
   /*
@@ -62,6 +84,8 @@ function pauseSimulation() {
 }
 
 function resetSimulation() {
+  resultsTracker.clearResults();
+  createPaths();
     //carFleetAssignRandomPaths();
 }
 

@@ -1,4 +1,4 @@
-//////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////
 //
 // PATH
 
@@ -28,11 +28,11 @@ var Path = function (id, x1, y1, x2, y2, types, name) {
     x: 0,
     y: 0,
     points: [this.x1, this.y1, this.x2, this.y2],
-    pointerLength: 5,
-    pointerWidth: 5,
+    pointerLength: 4,
+    pointerWidth: 4,
     fill: 'black',
     stroke: 'black',
-    strokeWidth: 4,
+    strokeWidth: 3,
     hitStrokeWidth: 20
   });
   pathsLayer.add(this.arrow);
@@ -129,6 +129,8 @@ var Path = function (id, x1, y1, x2, y2, types, name) {
     //thisPath.arrowLabelBackground.hide();
     thisPath.arrowLabelGroup.hide();
     thisPath.getPathTransitions().forEach(e => e.toPath.unhighlightAsNextPathOptions());
+
+    paths.forEach(p => p.arrow.stroke('black'));
 
     pathNamesLayer.batchDraw();
   };
@@ -307,5 +309,8 @@ var Path = function (id, x1, y1, x2, y2, types, name) {
     return returnPaths;
   }
 
+  this.isOccupiedByExtraParkedCar = function() {
+    if(this.currentCar != null) return this.currentCar.type === "extraParked";
+  }
 
 };
