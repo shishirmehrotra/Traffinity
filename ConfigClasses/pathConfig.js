@@ -1,0 +1,10 @@
+class PathConfig {
+  constructor() {
+    
+  }
+
+  setup() {
+   
+  };
+
+}

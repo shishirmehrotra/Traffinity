@@ -4,6 +4,17 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////////
 
+function fireOnChangeForElement(e) {
+  var event = new Event('input', { bubbles: true });
+  e.dispatchEvent(event); 
+  //e.fireEvent("oninput");
+}
+
+function fireEventForElement(e, type) {
+  var event = new Event(type, { bubbles: true });
+  e.dispatchEvent(event); 
+  //e.fireEvent("oninput");
+}
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));

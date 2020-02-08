@@ -320,6 +320,8 @@ var Car = function (id, passengerCountInitial, type) {
       this.carDoor.show()
       this.isDroppingOff = true;
       this.ticksSinceStartDropoff = 0;
+      resultsTracker.logDrop(this.ticksTotal);
+
     }
 
     this.checkIsDoneDroppingOff = function () {
@@ -341,7 +343,6 @@ var Car = function (id, passengerCountInitial, type) {
       this.passengerTwo.hide();
       
       this.ticksWhenDropoffDone = this.ticksTotal;
-      resultsTracker.logDrop(this.ticksTotal);
     }
 
   // Next Step Execution
@@ -402,96 +403,7 @@ var Car = function (id, passengerCountInitial, type) {
   }
 
   this.selectFromNextPathOptions = function() {
-    // Goal: I've decided to move, yah! Where should I move to? Let's pick a path and return it!
-
-    // Where can I move to?
-      var validPathTransitions = [];
-      var currentPriority = Math.floor(document.getElementById("sliderCarSpacing").value/25);
-      if (this.currentPath != null) validPathTransitions = this.currentPath.getOpenPathTransitions(currentPriority);
-
-    // Check 1: Do I have ANY valid places to go?
-      if(validPathTransitions.length === 0) return null;
-
-    // Check 2: Am I in a special decision point?
-
-      // 2.1: I'm coming from the East, and am at the parking lot entrance. Should I turn in?
-      //      Factors: Am I trying to dropoff? And if I am, do I prefer to dropoff on the street? 
-
-      if (this.currentPath === findPathByNames(["E Begin", "End"])) {
-        if (this.passengerCount > 0) return this.canIGoToPathName("E Enter", validPathTransitions);
-        else                         return this.canIGoToPathName("Second Inner East Portola", validPathTransitions);
-      }
-
-      // 2.2: I'm on the angle that leads into the second parking lot line. Should I turn in?
-      //      Factors: Do I want to park?
-      if (this.currentPath === findPathByNames(["Angle Into Second Parking Line", "End"])) {
-        var parkingSpotPrefSlider = document.getElementById("sliderParkingSpotPreferred").value;
-        if (getRandomInt(100) < parkingSpotPrefSlider ) return this.canIGoToPathName("2nd Parking Line", validPathTransitions);
-        else                                            return this.canIGoToPathName("Angle Into Inner Curb Lane", validPathTransitions);
-      }
-
-      // 2.3: I'm at the second dropoff line. Should I turn in?
-      //      Factors: Am I done with dropping off or parking? Is all the dropoff spots full?
-      if (this.currentPath === findPathByNames(["Angle Into Inner Curb Lane", "End"])) {
-        if (this.passengerCount === 0) return this.canIGoToPathName("Inner Curb Lane ", validPathTransitions);
-        else                           return this.canIGoToPathName("Angle Between Curb Lanes", validPathTransitions);
-      }
-      // 2.4: I'm at the first dropoff line. How far in should I go?
-      //      Factors: Is the pull forward slider high? Should I go all the way down the line?
-
-      // 2.5: I'm at the first parking lot line. Should I turn in?
-      //      Factors: Am I done dropping off? Do I want to park? Does the parking lot look full?
-      if (this.currentPath === findPathByNames(["Third Exit Inner Lane", "End"])) {
-        var spotDropOffPathsInThisLine = paths.filter(p => p.types.includes("spotEnter") && p.types.includes("dropoff") && p.name.includes("1st Parking Line") && !p.isOccupiedByExtraParkedCar());
-
-        var openSpotDropOffPathsInThisLine = spotDropOffPathsInThisLine.filter(p => p.currentCar === null);
-
-        if (this.passengerCount === 0 
-            || openSpotDropOffPathsInThisLine.length / spotDropOffPathsInThisLine.length < .1)            
-          return this.canIGoToPathName("Fourth Exit Inner Lane", validPathTransitions);
-        else
-          return this.canIGoToPathName("1st Parking Line", validPathTransitions);
-      }
-
-
-      // 2.6: I'm at the exit? Which way should I turn?
-      //      Factors: Am I still dropping off? If so, go left. Else, choose based on the direction ratio slider.
-      if (this.currentPath === findPathByNames(["Fourth Exit Inner Lane", "End"])) {
-        var directionRatioSlider = document.getElementById("sliderDirectionRatio").value;
-        if (getRandomInt(100) < directionRatioSlider ) return this.canIGoToPathName("Right Exit", validPathTransitions);
-        else                                           return this.canIGoToPathName("Exit Cross Portola", validPathTransitions);
-      }
-
-      // 2.7: I'm coming from the West, and am at the parking lot entrance. Should I turn in?
-      //      Factors: Am I trying to dropoff? 
-      if (this.currentPath === findPathByNames(["Second Outer West Portola", "End"])) {
-        if (this.passengerCount > 0) return this.canIGoToPathName("Outer Entrance", validPathTransitions);
-        else                         return this.canIGoToPathName("Third Outer West Portola", validPathTransitions);
-      }
-      
-      // 2.8: I can turn into a parking spot, should I?
-      //      Factors: Am I trying to dropoff?
-      var validSpotTransitions    = validPathTransitions.filter(pt => pt.toPath.types.includes("spotEnter") && pt.toPath.types.includes("dropoff")); 
-
-      if (validSpotTransitions.length > 0) {
-
-        if(this.passengerCount > 0) {
-          for(var i = 0; i < validSpotTransitions.length; i++) 
-            if(this.shouldIspotDropOffHere(validSpotTransitions[i].toPath))
-              return this.canIGoToPathName(validSpotTransitions[i].toPath.name, validPathTransitions);
-        }
-
-        var validNonSpotTransitions = validPathTransitions.filter(pt => !(pt.toPath.types.includes("spotEnter") && pt.toPath.types.includes("dropoff")));
-        if(validNonSpotTransitions.length > 0) return this.canIGoToPathName(validNonSpotTransitions[0].toPath.name, validPathTransitions);
-        else return null;
-      }
-
-      // Check 3: I guess I'm not at a special decision point, so let's just pick randomly?
-      var random = getRandomInt(validPathTransitions.length);
-      return validPathTransitions[random].toPath;
-
-    // Guess we didn't find any valid paths, so we'll just return null (and stay put)
-    return null;
+    return currentPathConfig.selectFromNextPathOptions(this);
   }
 
   this.canIGoToPathName = function(pathNamePrefix, validPathTransitions) {

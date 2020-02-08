@@ -26,14 +26,31 @@ var ResultsTracker = function() {
     this.doneTimes.push(doneTime); this.refreshResults(); }
   this.clearResults = function() { this.dropTimes = []; this.doneTimes = []; this.refreshResults();}
   this.refreshResults = function() { 
+    var ticksPerMinute = 15; 
+
     this.resultsCountCars.innerHTML   =      this.doneTimes.length;
     this.resultsCountKids.innerHTML   = 2 * (this.doneTimes.length);    
-    this.resultsPreAverage.innerHTML  = Math.round(arr.mean(this.dropTimes));
-    this.resultsPreMedian.innerHTML   = arr.median(this.dropTimes);
-    this.resultsPreMax.innerHTML      = arr.max(this.dropTimes);
-    this.resultsPostAverage.innerHTML = Math.round(arr.mean(this.doneTimes));
-    this.resultsPostMedian.innerHTML  = arr.median(this.doneTimes);
-    this.resultsPostMax.innerHTML     = arr.max(this.doneTimes);
+    if (this.dropTimes.length != 0) {
+      this.resultsPreAverage.innerHTML  = Math.round(arr.mean(   this.dropTimes.slice(-20)) / ticksPerMinute) + " min";
+      this.resultsPreMedian.innerHTML   = Math.round(arr.median( this.dropTimes.slice(-20)) / ticksPerMinute) + " min";
+      this.resultsPreMax.innerHTML      = Math.round(arr.max(    this.dropTimes.slice(-20)) / ticksPerMinute) + " min";
+    } 
+    else {
+      this.resultsPreAverage.innerHTML  = "-";
+      this.resultsPreMedian.innerHTML   = "-";
+      this.resultsPreMax.innerHTML      = "-";
+    }
+
+    if (this.doneTimes.length != 0) {
+      this.resultsPostAverage.innerHTML = Math.round(arr.mean(   this.doneTimes.slice(-20)) / ticksPerMinute) + " min";
+      this.resultsPostMedian.innerHTML  = Math.round(arr.median( this.doneTimes.slice(-20)) / ticksPerMinute) + " min";
+      this.resultsPostMax.innerHTML     = Math.round(arr.max(    this.doneTimes.slice(-20)) / ticksPerMinute) + " min";
+    }
+    else {
+      this.resultsPostAverage.innerHTML = "-";
+      this.resultsPostMedian.innerHTML  = "-";
+      this.resultsPostMax.innerHTML     = "-";  
+    }
   }
 
 }

@@ -7,18 +7,22 @@ var CarGenerator = function(){
 // Define properties of CarGenerator
   this.leftCarCount = 0;
   this.rightCarCount = 0;
-  this.currentDirectionRatio = document.getElementById("sliderDirectionRatio").value;
+  this.currentDirectionRatio = null;
+    //document.getElementById("sliderDirectionRatio").value;
   this.ticksSinceLastCar = 0;
-  this.currentAmountOfCars = document.getElementById("sliderAmountOfCars").value;
-
+  this.currentAmountOfCars = null;
+    // document.getElementById("sliderAmountOfCars").value;
+  this.hasSlider = function() {return document.getElementById("sliderDirectionRatio") != null};
 
 
 // Define functions
   this.setRatio = function() {
-    this.leftCarCount = 0;
-    this.rightCarCount = 0;
-    this.currentDirectionRatio = document.getElementById("sliderDirectionRatio").value;
-    console.log("Current Direction Ratio: " + this.currentDirectionRatio);
+    if (this.hasSlider()) {
+      this.leftCarCount = 0;
+      this.rightCarCount = 0;
+      this.currentDirectionRatio = document.getElementById("sliderDirectionRatio").value;
+      console.log("Current Direction Ratio: " + this.currentDirectionRatio);
+    }
   };
 
   this.setAmountOfCars = function() {
@@ -58,36 +62,45 @@ var CarGenerator = function(){
 
   this.generateCars = function() {
     var type = null;   
-
+  
     // should we add cars on this tick?
     if (this.ticksSinceLastCar >= -this.currentAmountOfCars+100) {
-      // generate car
-
-      // how many passengers will this car have
+    // generate car
+    // how many passengers will this car have
       var extraCarsValue = document.getElementById("sliderExtraCars").value;
       var passengerCount = 2; 
       if (getRandomInt(100) < extraCarsValue) { passengerCount = 0; type = "extraDriving"}
 
-      // should we put the cars on the left or right?
-      
-      if (this.currentDirectionRatio/100 < this.rightCarCount/(this.leftCarCount+ this.rightCarCount)) {
-        var path = findPathByNames(["E Begin", "Start"]);
-        if(path.currentCar === null) {
+    // does slider exist? - if slider doesn't exit do random
+      if (this.hasSlider()===false) {
+        if (entrancePaths.length > 0) {
+          var random = getRandomInt(entrancePaths.length);
           carFleet.push(new Car(carFleet.length, passengerCount, type));
-          carFleet[carFleet.length-1].setPath(path);
-          this.leftCarCount++;
+          carFleet[carFleet.length - 1].setPath(entrancePaths[random]);
         }
       }
       else {
-        var path = findPathByNames(["W Begin", "Start"]);
+      // should we put the cars on the left or right?
+        
+        if (this.currentDirectionRatio/100 < this.rightCarCount/(this.leftCarCount+ this.rightCarCount)) {
+          var path = findPathByNames(["E Begin", "Start"]);
+          if(path.currentCar === null) {
+            carFleet.push(new Car(carFleet.length, passengerCount, type));
+            carFleet[carFleet.length-1].setPath(path);
+            this.leftCarCount++;
+          }
+        }
+        else {
+          var path = findPathByNames(["W Begin", "Start"]);
 
-        if(path.currentCar === null) {
-          carFleet.push(new Car(carFleet.length, passengerCount, type));  
-          carFleet[carFleet.length-1].setPath(path);
-          this.rightCarCount++;
+          if(path.currentCar === null) {
+            carFleet.push(new Car(carFleet.length, passengerCount, type));  
+            carFleet[carFleet.length-1].setPath(path);
+            this.rightCarCount++;
+          }
         }
       }
-      //reset ticks
+    // reset ticks
       this.ticksSinceLastCar = 0;
     }
     else {

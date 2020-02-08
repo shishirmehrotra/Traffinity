@@ -55,7 +55,7 @@ var PathTransition = function(fromPath, toPath, dependentPaths) {
     string += " [";
     this.dependentPaths.forEach(function(e)
       { 
-        string += e["path"].id + e["priority"];
+        string += " " + e["path"].id + " p:" + e["priority"];
         });
     string += "]";
     console.log(string);

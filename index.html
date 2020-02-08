@@ -1,11 +1,24 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 
 <head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-157706425-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-157706425-1');
+</script>
+
+
 	<title>Traffinity</title>
 	<link rel=stylesheet href="style.css" />
 	<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900,&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:200,300,400&display=swap" rel="stylesheet">
+
+  <script async src="https://w.appzi.io/bootstrap/bundle.js?token=iTS7k"></script>
 </head>
 
 <body>
@@ -19,15 +32,14 @@
 	<!--button onClick="togglePaths()">Toggle Paths</button>-->
   
   <div id="mapContainer">
-    <img width=1400 height=500 src="https://cl.ly/6c1c44d889d5/Group%205.png" id="baseimage" onclick="handleMapClick()">
+    <img width=1400 height=500 src="Resources/Logo.png" id="baseimage" onclick="handleMapClick()">
     <div id="pathsCanvasDiv"><canvas width=1400 height=500 id="pathsCanvas" ></canvas></div>
     <!--<div id="carsCanvasDiv"><canvas width=1400 height=500 id="carsCanvas" ></canvas></div>-->
-    <div id="configureButtonDiv">
-    	<input type="radio" id="configureButton" name="configureButton" onclick="handleConfigureClick(this);"   value="Configure">
-      <label for="configureButton">Configure</label>
-      <input type="radio" id="runButton" name="configureButton" onclick="handleConfigureClick(this);" value="Run" checked>
-      <label for="runButton">Run</label>
-      
+    <div id="chooseLocationDiv">
+    	<input type="radio" id="sfoButton" name="chooseLocationButton" onclick="chooseLocation(this.value);"   value="SFO">
+      <label for="sfoButton">SFO</label>
+      <input type="radio" id="bcsButton" name="chooseLocationButton" onclick="chooseLocation(this.value);" value="BCS" checked>
+      <label for="bcsButton">BCS</label>
     </div>
   </div>
   <br>
@@ -35,23 +47,30 @@
     <div id="runPanelsLeft" class="leftPanel">
       <div id="trafficSettingsPanel" class="panel">
         <h2>Traffic Settings </h2>
-        <div id="slidersCarSetup">
-          <h3>Car Setup</h3> <p>
-          <input class="slider" id="sliderAmountOfCars" type="range" min="0" max="100" value="75" onInput="carGenerator.setAmountOfCars()"> Amount of Cars <br>
+        
+        <div id="sliderGroupCarSetup" class="sliderGroup">
+          <h3>Car Setup</h3><p>
+         <!--   
+          <input class="slider" id="sliderAmountOfCars" type="range" min="0" max="100" value="75" onInput="carGenerator.setAmountOfCars()"> <span class="sliderLabel"> Amount of Cars </span><br>
           <input class="slider" id="sliderDirectionRatio" type="range" min="0" max="99" onInput="carGenerator.setRatio()"> Direction Ratio<br>
           <input class="slider" id="sliderAverageSpeed" type="range" min="0" max="99" value ="100" onInput="setAverageSpeed()"> Average Speed<br>
           <input class="slider" id="sliderExtraCars" type="range" min="0" max="99" value="5"> Extra Cars<br>
-          <input class="slider" id="sliderExtraParkedCars" type="range" min="0" max="99" value="50" onInput="carGenerator.generateExtraParkedCars()"> Extra Parked Cars<br>
-
-          <h3>Location Preference</h3><p>
+          <input class="slider" id="sliderExtraParkedCars" type="range" min="0" max="99" value="50" onInput="carGenerator.generateExtraParkedCars()">  Extra Parked Cars<br> -->
+        </div>
+      
+        <div id="sliderGroupLocationPreference" class="sliderGroup">
+          <h3>Location Preference</h3><p> <!--
           <input class="slider" id="sliderCurbPreferred" type="range" min="0" max="100" value="50" onInput="setSliderCurbPreferred()"> Curb Preferred<br>
           <input class="slider" id="sliderParkingSpotPreferred" type="range" min="0" max="100" value = "50" onInput="setSliderParkingSpotPreferred()"> Parking Spot Preferred<br>
-          <input class="slider" id="sliderStreetPreferred" type="range" min="0" max="100" value="0"> Street Preferred<br>
-          <h3>Politeness</h3><p>
+          <input class="slider" id="sliderStreetPreferred" type="range" min="0" max="100" value="0"> Street Preferred<br> -->
+        </div>
+        <div id="sliderGroupPoliteness" class="sliderGroup">
+          <h3>Politeness</h3><p> <!--
           <input class="slider" id="sliderCarSpacing" type="range" min="0" max="99" value="20"> Car Spacing <br>
           <input class="slider" id="sliderTaskTime" type="range" min="0" max="100"> Drop off/Pick up Duration<br>
-          <input class="slider" id="sliderPullForward" type="range" min="0" max="99" value="99"> Pull Forward<br>    
+          <input class="slider" id="sliderPullForward" type="range" min="0" max="99" value="99"> Pull Forward<br>    -->
         </div>
+        <br>
       </div>
     </div>
 
@@ -60,12 +79,12 @@
         <h2>Parking Lot Setup </h2>
         <div id="parkingLotSetup">
 
-          <div class="radio-toolbar parkingLotToolbar">
-            <input type="radio" id="Simple" name="radioParkingLotSetup" value="Simple" onClick="createPaths()" checked>
+          <div class="radio-toolbar parkingLotToolbar" id="parkingLotToolbar">
+            <!--<input type="radio" id="Simple" name="radioParkingLotSetup" value="Simple" onClick="createPaths()" checked>
             <label for="Simple">Simple</label><br>  
       
             <input type="radio" id="Today" name="radioParkingLotSetup" value="Today" onClick="createPaths()">
-            <label for="Today">Today</label>
+            <label for="Today">Today</label> 
 
             <input type="radio" id="All Left" name="radioParkingLotSetup" value="All Left" onClick="createPaths()">
             <label for="All Left">All Left</label>
@@ -73,22 +92,22 @@
             <input type="radio" id="Exit Right" name="radioParkingLotSetup" value="Exit Right" onClick="createPaths()">
             <label for="Exit Right">Exit Right</label> 
 
-            <input type="radio" id="Exit Right" name="radioParkingLotSetup" value="Expand Dropoff" onClick="createPaths()">
+            <input type="radio" id="Expand Dropoff" name="radioParkingLotSetup" value="Expand Dropoff" onClick="createPaths()">
             <label for="Expand Dropoff">Expand Dropoff</label> 
             <!--<input type="radio" id="Add New" name="radioParkingLotSetup" value="Add New" onClick="createPaths()">
             <label for="Add New">Add New</label><br> -->
           </div>
-          <div class="radio-toolbar parkingSetupToolbar">
-            <input type="radio" id="Less Reserved Spots" name="radioParkingLotSetupSecond" value="Less Reserved Spots" onClick="setExtraParkedCars(25)" >
+          <div class="radio-toolbar parkingSetupToolbar" id="parkingSetupToolbar">
+            <!--<input type="radio" id="Less Reserved Spots" name="radioParkingLotSetupSecond" value="Less Reserved Spots" onClick="setExtraParkedCars(25)" >
             <label for="Less Reserved Spots">Less Reserved</label><br>  
       
-            <input type="radio" id="Remote Lot" name="radioParkingLotSetupSecond" value="Remote Lot" onClick="setAmountOfCars(25)">
+            <input type="radio" id="Remote Lot" name="radioParkingLotSetupSecond" value="Remote Lot" onClick="setCustomAmountOfCars(25)">
             <label for="Remote Lot">Remote Lot</label>
 
-            <input type="radio" id="School Bus" name="radioParkingLotSetupSecond" value="School Bus" onClick="setAmountOfCars(25)">
+            <input type="radio" id="School Bus" name="radioParkingLotSetupSecond" value="School Bus" onClick="setCustomAmountOfCars(25)">
             <label for="School Bus">School Bus</label>
 
-            <input type="radio" id="Stagger Times" name="radioParkingLotSetupSecond" value="Stagger Times" onClick="setAmountOfCars(25)">
+            <input type="radio" id="Stagger Times" name="radioParkingLotSetupSecond" value="Stagger Times" onClick="setCustomAmountOfCars(25)">
             <label for="Stagger Times">Stagger Times</label> 
 
             <input type="radio" id="Active Curb" name="radioParkingLotSetupSecond" value="Active Curb" onClick="setDropoffDuration(10)">
@@ -96,32 +115,32 @@
             <!--<input type="radio" id="Add New" name="radioParkingLotSetup" value="Add New" onClick="createPaths()">
             <label for="Add New">Add New</label><br> -->
           </div>
+        </div>  
             <div id="togglePathCheckBoxes">
               <p>
-              <input type="checkbox" id="checkboxShowPathLines" onclick="showPathLines();" checked> Show Path Lines
-              <!--input type="checkbox" id="checkboxShowPathNames" onclick="showPathNames();" checked> Show Path Names -->
+              <input type="checkbox" id="checkboxShowPathLines" onclick="showPathLines();"> Show Path Lines
+              <input type="checkbox" id="checkboxShowSatelliteImage" onclick="currentLocationConfig.toggleImage()" checked> Show Satellite Image
             </div>
           
           
 
-        </div>  
       </div>
       <div id="simulationPanel" class="panel">
         <h2>Run Simulation </h2>
         <div id="simulationSetup">
           <button id="buttonBackward" name="runSymptoms" value="Backward" onClick="resetSimulation()">
-            <img src="Buttons/GoBackOne.png"/>
+            <img src="Resources/Buttons/GoBackOne.png"/>
           </button>
 
           <button id="buttonPlay" name="runSymptomsPlayPause" onClick="runSimulation()" >
-            <img src="Buttons/Play.png"/>
+            <img src="Resources/Buttons/Play.png"/>
           </button>
 
           <button id="buttonPause" name="runSymptomsPlayPause" value="Pause" onClick="pauseSimulation()">
-          <img src="Buttons/Pause.png"/>
+          <img src="Resources/Buttons/Pause.png"/>
                 </button>
           <button id="buttonForward" name="runSymptoms" value="Forward" onClick="nextStep()" >
-          <img src= "Buttons/AdvanceOne.png">
+          <img src= "Resources/Buttons/AdvanceOne.png" max-width = "1">
           </button>
         </div>  
         <div id="timeWarpSliderPanel"><p>  
@@ -134,28 +153,28 @@
         <div id="resultsSetup">
           <table style="width:100%">
             <tr>
-              <th></th> 
-              <th>Count</th>
+              <th hidden></th> 
+              <th hidden>Count</th>
               <th>Phase</th>
               <th>Median</th>
               <th>Average</th>
               <th>Max</th>  
             </tr>
             <tr>
-              <td>Cars</td>
-              <td id="resultsCountCars">0</td>
+              <td hidden>Cars</td>
+              <td id="resultsCountCars" hidden>-</td>
               <td>Pre-phase  <span class="subtext">from arrival to dropoff/pickup</span></td>
-              <td id="resultsPreMedian">0</td>
-              <td id="resultsPreAverage">0</td>
-              <td id="resultsPreMax">0</td>
+              <td id="resultsPreMedian">-</td>
+              <td id="resultsPreAverage">-</td>
+              <td id="resultsPreMax">-</td>
             </tr>
             <tr>
-              <td>Kids</td>
-              <td id="resultsCountKids">0</td>
+              <td hidden>Kids</td>
+              <td id="resultsCountKids" hidden>-</td>
               <td>Post-phase  <span class= "subtext">from dropoff/pickup to depart</span></td>
-              <td id="resultsPostMedian">0</td>
-              <td id="resultsPostAverage">0</td>
-              <td id="resultsPostMax">0</td>
+              <td id="resultsPostMedian">-</td>
+              <td id="resultsPostAverage">-</td>
+              <td id="resultsPostMax">-</td>
             </tr>
           </table>
           <p>
@@ -210,18 +229,29 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script> 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/konva/4.1.0/konva.min.js"></script>
-  <script src="cars.js"></script>
-  <script src="paths.js"></script>
-  <script src="pathTransitions.js"></script>
+  <script src="car.js"></script>
+  <script src="path.js"></script>
+  <script src="pathTransition.js"></script>
   <script src="carGenerator.js"></script>
   <script src="resultsTracker.js"></script>
-
   <script src="tables.js"></script>
   <script src="helper.js"></script>
   <script src="debugFunctions.js"></script>
   <script src="setUpFunctions.js"></script>
+  <script src="ConfigClasses/locationConfig.js"></script>
+  <script src="ConfigClasses/pathConfig.js"></script>
+  <script src="Location-BCS/bcsLocation.js"></script>
+  <script src="Location-BCS/bcsPathConfig-base.js"></script>
+  <script src="Location-BCS/bcsPathConfig-today.js"></script>
+  <script src="Location-BCS/bcsPathConfig-exitRight.js"></script>
+  <script src="Location-BCS/bcsPathConfig-allLeft.js"></script>
+  <script src="Location-BCS/bcsPathConfig-expandDropoff.js"></script>
+  <script src="Location-SFO/sfoLocation.js"></script>
+  <script src="Location-SFO/sfoPathConfig-base.js"></script>
+  <script src="Location-SFO/sfoPathConfig-today.js"></script>
+
   <script src="runFunctions.js"></script>
-  <script src="execution.js"></script>
+  <script src="run.js"></script>
 </body>
 
 </html>

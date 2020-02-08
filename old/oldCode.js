@@ -1,4 +1,33 @@
 
+function handleConfigureClick(myRadio) {
+  //alert('New value: ' + myRadio.value);
+  if (myRadio.value === "Run") {
+    document.getElementById("runPanels").hidden = false;
+    document.getElementById("configurePanels").hidden = true;
+  }
+  if (myRadio.value === "Configure") {
+    document.getElementById("runPanels").hidden = true;
+    document.getElementById("configurePanels").hidden = false;
+  }
+}
+
+
+function showPathNames() {
+  if (document.getElementById("checkboxShowPathNames").checked === true) {
+   pathNamesLayer.show();
+  }
+  else {
+    pathNamesLayer.hide();
+  }
+};
+
+  /*
+  timer = window.clearTimeout()
+  for (var i = 0; i < 2000; i++) {
+    timer = window.setTimeout(nextStep, timeScale/30*i, 20);
+  }
+  */
+
 /*
 function moveDown(amount) {
   var car = document.getElementById("car1");

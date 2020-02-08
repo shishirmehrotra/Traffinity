@@ -11,9 +11,9 @@ function consoleLogAllPaths() {
 
 function consoleLogAllPathTransitions() {
   console.log("pathsTransitions");
-  //console.log(JSON.stringify(pathTransitions));
+    //console.log(JSON.stringify(pathTransitions));
   pathTransitions.forEach(function (e) { 
     e.consoleLog();
-    //console.log(e.fromPath.id + " " + e.toPath.id); 
+    console.log(e.fromPath.id + " " + e.toPath.id); 
     });
 }

@@ -4,36 +4,47 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////////
 
-function handleConfigureClick(myRadio) {
-  //alert('New value: ' + myRadio.value);
-  if (myRadio.value === "Run") {
-    document.getElementById("runPanels").hidden = false;
-    document.getElementById("configurePanels").hidden = true;
+
+function chooseLocation(value) {
+  switch(value) {
+    case "BCS":
+      currentLocationConfig = new BCSLocationConfig();
+      currentPathConfig = new BCSPathConfigToday();
+      resetSimulation();
+      break;
+    case "SFO":
+      currentLocationConfig = new SFOLocationConfig();
+      currentPathConfig = new SFOPathConfigToday(); resetSimulation();
+      break;
+    default:
+      currentLocationConfig = new BCSLocationConfig();
+      break;
   }
-  if (myRadio.value === "Configure") {
-    document.getElementById("runPanels").hidden = true;
-    document.getElementById("configurePanels").hidden = false;
-  }
+  
+  currentLocationConfig.setup();
 }
 
+//TODO: Get ride of separate curb/parking sliders
 function setSliderCurbPreferred() {
+ /*
   var sliderCurbPreferredValue = document.getElementById("sliderCurbPreferred").value;
   document.getElementById("sliderParkingSpotPreferred").value = 100 - sliderCurbPreferredValue;
+  */
 }
 function setSliderParkingSpotPreferred() {
+/*
   var sliderParkingSpotPreferredValue = document.getElementById("sliderParkingSpotPreferred").value;
   document.getElementById("sliderCurbPreferred").value = 100 - sliderParkingSpotPreferredValue;
+*/
 }
 
-function setExtraParkedCars(value) {var e = document.getElementById("sliderExtraParkedCars"); e.value = value; fireOnChangeForElement(e);}
-function setAmountOfCars(value)    {var e = document.getElementById("sliderAmountOfCars");    e.value = value; fireOnChangeForElement(e);}
-function setDropoffDuration(value) {var e = document.getElementById("sliderTaskTime");        e.value = value; fireOnChangeForElement(e);}
 
-function fireOnChangeForElement(e) {
-  var event = new Event('input', { bubbles: true });
-  e.dispatchEvent(event); 
-  //e.fireEvent("oninput");
-}
+// TODO: Location Specific Slider implementations
+function setExtraParkedCars(x) {var e = document.getElementById("sliderExtraParkedCars"); e.value = x === null ? 25 : x; fireOnChangeForElement(e);}
+function setCustomAmountOfCars(x)    {var e = document.getElementById("sliderAmountOfCars");    e.value = x === null ? 25 : x; fireOnChangeForElement(e);}
+function setDropoffDuration(x) {var e = document.getElementById("sliderTaskTime");        e.value = x === null ? 10 : x; fireOnChangeForElement(e);}
+function setRatio() {carGenerator.setRatio();}
+function setAmountOfCars() {carGenerator.setAmountOfCars();}
 
 
 var setAverageSpeed = function() {
@@ -49,14 +60,6 @@ function showPathLines() {
   }
 };
 
-function showPathNames() {
-  if (document.getElementById("checkboxShowPathNames").checked === true) {
-   pathNamesLayer.show();
-  }
-  else {
-    pathNamesLayer.hide();
-  }
-};
 
 var timer;
 var lastTime = +new Date;
@@ -71,12 +74,7 @@ function runSimulation() {
 
   window.clearInterval(timer);
   timer = window.setInterval(nextStep, timeScale);
-  /*
-  timer = window.clearTimeout()
-  for (var i = 0; i < 2000; i++) {
-    timer = window.setTimeout(nextStep, timeScale/30*i, 20);
-  }
-  */
+
 }
 
 function pauseSimulation() {
@@ -85,8 +83,8 @@ function pauseSimulation() {
 
 function resetSimulation() {
   resultsTracker.clearResults();
-  createPaths();
-    //carFleetAssignRandomPaths();
+  //createPaths();
+  currentPathConfig.setup();
 }
 
 function nextStep() {

@@ -1,10 +1,12 @@
-/**************************************************************************
+ /**************************************************************************
     TEXT FORMATTING
   ***************************************************************************/
 *  {font-family: Roboto; font-style: normal; letter-spacing: 0.15px;}
 p  {font-size: 14px; font-weight: 500; color: #444444; line-height: 30px;}
+.sliderLabel {font-size: 14px; font-weight: 500; color: #444444; line-height: 30px;}
 h2 {font-size: 16px; font-weight: 500; color: #000000; text-align: center;}
 h3 {font-size: 16px; font-weight: 500; color: #000000;}
+
 
 /**************************************************************************
   MAP SETUP
@@ -30,7 +32,7 @@ h3 {font-size: 16px; font-weight: 500; color: #000000;}
 #transitionPanel      {  position: relative; top:  475px; left: 705px; }
  */
 
-#slidersCarSetup {margin: auto; width: 85%;}
+.sliderGroup     {margin: auto; width: 85%;}
 #parkingLotSetup {margin: auto; width: 85%;}
 #simulationSetup {margin: auto; width: 85%;}
 #resultsSetup    {margin: auto; width: 85%;}
@@ -74,7 +76,7 @@ h3 {font-size: 16px; font-weight: 500; color: #000000;}
 }
 .radio-toolbar input[type="radio"] {opacity: 0; position: fixed; width: 0; }
 .radio-toolbar label {
-    display: inline-block; padding: 10px 10px 10px 10px; border-radius: 4px;
+    display: inline-block; padding: 7px 7px 7px 7px; border-radius: 4px;
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
     font-family: Roboto; font-style: normal; font-weight: 500; font-size: 14px;
     line-height: 16px;   text-align: center; letter-spacing: 1.25px;    text-transform: uppercase;
@@ -83,13 +85,14 @@ h3 {font-size: 16px; font-weight: 500; color: #000000;}
     width: 80px;
     vertical-align: middle;
 }
-.parkingLotToolbar label {  color: #2196F3; background: #E3F2FD;}
+.parkingLotToolbar label {  color: #2196F3; background: #E3F2FD; font-size: 12px}
 .parkingLotToolbar label:hover {background-color: hsl(199, 100%, 80%);}
 .parkingLotToolbar input[type="radio"]:checked + label {background: #2196F3; color: #FFFFFF;}
 /*.radio-toolbar input[type="radio"]:focus + label { border: 2px dashed #444;} */
-.parkingSetupToolbar label {  color: rgb(58, 153, 68); background:rgb(223, 238, 218);}
+.parkingSetupToolbar label{  color: rgb(58, 153, 68); background:rgb(223, 238, 218); font-size: 12px}
 .parkingSetupToolbar label:hover {background-color:rgb(133, 196, 120);}
 .parkingSetupToolbar input[type="radio"]:checked + label {background:  rgb(6, 160, 39); color: #FFFFFF;}
+//.parkingSetupToolbar input[type="radio"]:checked + label {  color: rgb(58, 153, 68); background:rgb(223, 238, 218);}
 
 #togglePathCheckBoxes {
     margin: 10px; width: 100%; height: 15px; border: none; 
@@ -113,10 +116,10 @@ h3 {font-size: 16px; font-weight: 500; color: #000000;}
 /**************************************************************************
   PANEL: Results
 ***************************************************************************/
-#resultsSetup    {font-size: 12px; text-align: left; font-family: Roboto;font-style: normal; font-weight: normal; line-height: 30px; }
+#resultsSetup    {font-size: 15px; text-align: left; font-family: Roboto;font-style: normal; font-weight: normal; line-height: 30px; }
 #resultsSetup th {color: #77767E;border-bottom: 2px solid #ddd}
-#resultsSetup tr {color: #232326;font-weight: bold;}
-#resultsSetup .subtext {color: #8F8F8F; font-size:10px;}
+#resultsSetup tr {color: #444444;font-weight: bold;}
+#resultsSetup .subtext {color: #AFAFAF; font-size:13px;}
 
 #resultsSetup td {
   border-bottom: 1px solid #ddd;
@@ -125,22 +128,22 @@ h3 {font-size: 16px; font-weight: 500; color: #000000;}
 /**************************************************************************
   Configure
 ***************************************************************************/
-#configureButtonDiv {position: absolute; left: 1150px; top: 450px}
-#configureButtonDiv{
+#chooseLocationDiv {position: absolute; left: 1150px; top: 450px}
+#chooseLocationDiv{
   width: 100%;;height: 40px; border: none; 
   align-items: center; justify-content: center;
 }
-#configureButtonDiv input[type="radio"] {opacity: 0; position: fixed; width: 0; }
-#configureButtonDiv label {
-    display: inline-block; padding: 10px 20px; background: #E3F2FD; border-radius: 4px;
+#chooseLocationDiv input[type="radio"] {opacity: 0; position: fixed; width: 0; }
+#chooseLocationDiv label {
+    display: inline-block; padding: 10px 20px; background: #FCC7C3; color:#F66257; border-radius: 4px;
     box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24), 0px 0px 2px rgba(0, 0, 0, 0.12);
     font-family: Roboto; font-style: normal; font-weight: 500; font-size: 14px;
     line-height: 16px;   text-align: center; letter-spacing: 1.25px;
-    color: #2196F3;    text-transform: uppercase;
+    color: light ;    text-transform: uppercase;
     margin: 10px;
 }
-#configureButtonDiv label:hover {background-color: hsl(199, 100%, 80%);}
-#configureButtonDiv input[type="radio"]:checked + label {background: rgb(241, 99, 99); color: #FFFFFF;}
+#chooseLocationDiv label:hover {background-color: #FAA19B;}
+#chooseLocationDiv input[type="radio"]:checked + label {background: #F66257; color: #FFFFFF;}
 
 /**************************************************************************
   Path: Panel
